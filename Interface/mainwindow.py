@@ -218,16 +218,14 @@ class Mainwindow(QtWidgets.QMainWindow):
                     {
                         "Action": "Gradiant", "triggered": self.__apply_grad, 
                     },
-                    {
-                        "Action": "Marr-Hildreth",
-                        "triggered": self.__marr_hildreth, 
-                    },
+                    # {
+                    #     "Action": "Marr-Hildreth",
+                    #     "triggered": self.__marr_hildreth, 
+                    # },
                 ]},
-                {"Morphology": [
-                    {
-                        "Action": "Basic", "triggered": self.__basic_morph, 
-                    },
-                ]},
+                {
+                    "Action": "Morphology", "triggered": self.__basic_morph, 
+                },
                 {
                     "Action": "Noise", "triggered": self.__add_noise, 
                 },
@@ -730,10 +728,10 @@ class Mainwindow(QtWidgets.QMainWindow):
         if not self.__img_objects:
             return
         spatial_dialog.GradientDialog(self)
-    def __marr_hildreth(self):
-        if not self.__img_objects:
-            return
-        spatial_dialog.MarrHildrethDialog(self)
+    # def __marr_hildreth(self):
+    #     if not self.__img_objects:
+    #         return
+    #     spatial_dialog.MarrHildrethDialog(self)
     
     # -Morphology
     def __basic_morph(self):

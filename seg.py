@@ -380,9 +380,9 @@ def get_threshold_itermean(img: ARR_8U2D) -> float:
     Calculate threshold value T of single-channel image such that
         mean(img[img<=T]) == mean(img[img>T]).
     
-    Glasbey, C. A. (1993). An Analysis of Histogram-Based Thresholding
-    Algorithms. CVGIP: Graphical Models and Image Processing, 55(6), 532-537.
-    doi:10.1006/cgip.1993.1040
+    Ridler, T.W., Calvard, S. (1978) Picture Thresholding Using an Iterative
+    Selection Method. IEEE Transactions on Systems, Man, and Cybernetics.
+    8 (8): 630–632. doi:10.1109/TSMC.1978.4310039.
     
     Parameters
     ----------
@@ -479,7 +479,7 @@ def get_threshold_max_entropy(img):
     """
     hist = stats.histogram_percentage_8UC1(img)
     # Calculate mean
-    entropy = np.empty(256, dtype=np.float32) # cumulative mean
+    entropy = np.empty(256, dtype=np.float32) # cumulative sum entropy
     if np.isinf(np.log(hist[0])): # xln(x) -> 0 as x-> 0+.
         entropy[0] = 0
     else:
@@ -586,9 +586,9 @@ def get_threshold_moments(img):
     cdf[0] = hist[0]
     for i, val in enumerate(hist[1:], 1):
         cdf[i] = val + cdf[i-1]
-        raw_moments[0] = i*val + raw_moments[0]
-        raw_moments[1] = (i**2)*val + raw_moments[1]
-        raw_moments[2] = (i**3)*val + raw_moments[2]
+        raw_moments[0] += i * val
+        raw_moments[1] += (i**2) * val
+        raw_moments[2] += (i**3) * val
     x1 = (
         (raw_moments[0]*raw_moments[2]-raw_moments[1]**2)
         / (raw_moments[1]-raw_moments[0]**2)

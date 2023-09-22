@@ -490,130 +490,130 @@ class GradientDialog(BasicDialog):
         self.update_view()
 
 
-class MarrHildrethDialog(BasicDialog):
-    """A dialog for applying Marr-Hidreth edge detection to image."""
+# class MarrHildrethDialog(BasicDialog):
+#     """A dialog for applying Marr-Hidreth edge detection to image."""
     
-    def __init__(self, parent: QWidget):
-        super().__init__(parent, "Marr-Hidreth")
+#     def __init__(self, parent: QWidget):
+#         super().__init__(parent, "Marr-Hidreth")
         
-        # Main region
-        self.__create_args_region()
-        self.central_layout.addStretch(1)
-        self.create_basic_buttons()
+#         # Main region
+#         self.__create_args_region()
+#         self.central_layout.addStretch(1)
+#         self.create_basic_buttons()
         
-        self.update_view()
-        self.show()
+#         self.update_view()
+#         self.show()
         
-    def __create_args_region(self):
-        # Blur
-        region = QtWidgets.QWidget(self)
-        self.central_layout.addWidget(region)
-        layout_region = QtWidgets.QFormLayout(region)
+#     def __create_args_region(self):
+#         # Blur
+#         region = QtWidgets.QWidget(self)
+#         self.central_layout.addWidget(region)
+#         layout_region = QtWidgets.QFormLayout(region)
         
-        # -Title: Arguments
-        title = QtWidgets.QLabel("Blur Args", region)
-        title.setFont(self.fonts["title"])
-        layout_region.addRow(title)
-        # -Ksize
-        label = QtWidgets.QLabel("Ksize", region)
-        label.setFont(self.fonts["default"])
-        self.spin_box["arg"] = QtWidgets.QSpinBox()
-        self.spin_box["arg"].setRange(3, 255)
-        self.spin_box["arg"].setSingleStep(2)
-        self.spin_box["arg"].valueChanged.connect(self.update_view)
-        layout_region.addRow(label, self.spin_box["arg"])
-        # -Sigma
-        label = QtWidgets.QLabel("Sigma", region)
-        label.setFont(self.fonts["default"])
-        self.spin_box["arg2"] = QtWidgets.QDoubleSpinBox()
-        self.spin_box["arg2"].setRange(0, float("inf"))
-        self.spin_box["arg2"].setSingleStep(0.5)
-        self.spin_box["arg2"].valueChanged.connect(self.update_view)
-        layout_region.addRow(label, self.spin_box["arg2"])
-        # -Border Type
-        label = QtWidgets.QLabel("Border Type", region)
-        label.setFont(self.fonts["default"])
-        border_list = SpatialOperators.get_border_names()
-        self.combo_box["border"] = QtWidgets.QComboBox()
-        self.combo_box["border"].addItems(border_list)
-        self.combo_box["border"].setCurrentIndex(
-            border_list.index("Reflect_101")
-        )
-        self.combo_box["border"].currentTextChanged.connect(self.update_view)
-        layout_region.addRow(label, self.combo_box["border"])
-        # -Norm
-        label = QtWidgets.QLabel("Norm", region)
-        label.setFont(self.fonts["default"])
-        norm_list = ("Abs. Max", "Sum", "Mean")
-        self.combo_box["norm"] = QtWidgets.QComboBox()
-        self.combo_box["norm"].addItems(norm_list)
-        self.combo_box["norm"].currentTextChanged.connect(self.update_view)
-        layout_region.addRow(label, self.combo_box["norm"])
-        # -Deal overflow, combo Box
-        label = QtWidgets.QLabel("Overflow", region)
-        label.setFont(self.fonts["default"])
-        overflow_list = SpatialOperators.get_overflow_deal_names()
-        self.combo_box["overflow"] = QtWidgets.QComboBox()
-        self.combo_box["overflow"].addItems(overflow_list)
-        self.combo_box["overflow"].setCurrentIndex(1)
-        self.combo_box["overflow"].currentIndexChanged.connect(
-            self.overflow_changed)
-        layout_region.addRow(label, self.combo_box["overflow"])
-        # -Overflow arg
-        self.widget["overflow_label"] = QtWidgets.QLabel("Coeff (%)", region)
-        self.widget["overflow_label"].setFont(self.fonts["default"])
-        self.spin_box["overflow"] = QtWidgets.QDoubleSpinBox()
-        self.spin_box["overflow"].setRange(0.001, 100)
-        self.spin_box["overflow"].setDecimals(3)
-        self.spin_box["overflow"].setValue(90)
-        self.spin_box["overflow"].valueChanged.connect(self.update_view)
-        layout_region.addRow(self.widget["overflow_label"],
-                             self.spin_box["overflow"])
-        # -Threshold
-        label2 = QtWidgets.QLabel("Threshold", region)
-        label2.setFont(self.fonts["title"])
-        self.spin_box["threshold"] = QtWidgets.QDoubleSpinBox()
-        self.spin_box["threshold"].setRange(0, float("inf"))
-        self.spin_box["threshold"].valueChanged.connect(self.update_view)
-        layout_region.addRow(label2, self.spin_box["threshold"])
-        # -Output Grascale
-        self.button["grayscale"] = QtWidgets.QCheckBox("Grayscale")
-        self.button["grayscale"].clicked.connect(self.update_view)
-        self.button["grayscale"].setChecked(True)
-        if not self.is_color:
-            self.button["grayscale"].hide()
-        layout_region.addRow(self.button["grayscale"])
+#         # -Title: Arguments
+#         title = QtWidgets.QLabel("Blur Args", region)
+#         title.setFont(self.fonts["title"])
+#         layout_region.addRow(title)
+#         # -Ksize
+#         label = QtWidgets.QLabel("Ksize", region)
+#         label.setFont(self.fonts["default"])
+#         self.spin_box["arg"] = QtWidgets.QSpinBox()
+#         self.spin_box["arg"].setRange(3, 255)
+#         self.spin_box["arg"].setSingleStep(2)
+#         self.spin_box["arg"].valueChanged.connect(self.update_view)
+#         layout_region.addRow(label, self.spin_box["arg"])
+#         # -Sigma
+#         label = QtWidgets.QLabel("Sigma", region)
+#         label.setFont(self.fonts["default"])
+#         self.spin_box["arg2"] = QtWidgets.QDoubleSpinBox()
+#         self.spin_box["arg2"].setRange(0, float("inf"))
+#         self.spin_box["arg2"].setSingleStep(0.5)
+#         self.spin_box["arg2"].valueChanged.connect(self.update_view)
+#         layout_region.addRow(label, self.spin_box["arg2"])
+#         # -Border Type
+#         label = QtWidgets.QLabel("Border Type", region)
+#         label.setFont(self.fonts["default"])
+#         border_list = SpatialOperators.get_border_names()
+#         self.combo_box["border"] = QtWidgets.QComboBox()
+#         self.combo_box["border"].addItems(border_list)
+#         self.combo_box["border"].setCurrentIndex(
+#             border_list.index("Reflect_101")
+#         )
+#         self.combo_box["border"].currentTextChanged.connect(self.update_view)
+#         layout_region.addRow(label, self.combo_box["border"])
+#         # -Norm
+#         label = QtWidgets.QLabel("Norm", region)
+#         label.setFont(self.fonts["default"])
+#         norm_list = ("Abs. Max", "Sum", "Mean")
+#         self.combo_box["norm"] = QtWidgets.QComboBox()
+#         self.combo_box["norm"].addItems(norm_list)
+#         self.combo_box["norm"].currentTextChanged.connect(self.update_view)
+#         layout_region.addRow(label, self.combo_box["norm"])
+#         # -Deal overflow, combo Box
+#         label = QtWidgets.QLabel("Overflow", region)
+#         label.setFont(self.fonts["default"])
+#         overflow_list = SpatialOperators.get_overflow_deal_names()
+#         self.combo_box["overflow"] = QtWidgets.QComboBox()
+#         self.combo_box["overflow"].addItems(overflow_list)
+#         self.combo_box["overflow"].setCurrentIndex(1)
+#         self.combo_box["overflow"].currentIndexChanged.connect(
+#             self.overflow_changed)
+#         layout_region.addRow(label, self.combo_box["overflow"])
+#         # -Overflow arg
+#         self.widget["overflow_label"] = QtWidgets.QLabel("Coeff (%)", region)
+#         self.widget["overflow_label"].setFont(self.fonts["default"])
+#         self.spin_box["overflow"] = QtWidgets.QDoubleSpinBox()
+#         self.spin_box["overflow"].setRange(0.001, 100)
+#         self.spin_box["overflow"].setDecimals(3)
+#         self.spin_box["overflow"].setValue(90)
+#         self.spin_box["overflow"].valueChanged.connect(self.update_view)
+#         layout_region.addRow(self.widget["overflow_label"],
+#                              self.spin_box["overflow"])
+#         # -Threshold
+#         label2 = QtWidgets.QLabel("Threshold", region)
+#         label2.setFont(self.fonts["title"])
+#         self.spin_box["threshold"] = QtWidgets.QDoubleSpinBox()
+#         self.spin_box["threshold"].setRange(0, float("inf"))
+#         self.spin_box["threshold"].valueChanged.connect(self.update_view)
+#         layout_region.addRow(label2, self.spin_box["threshold"])
+#         # -Output Grascale
+#         self.button["grayscale"] = QtWidgets.QCheckBox("Grayscale")
+#         self.button["grayscale"].clicked.connect(self.update_view)
+#         self.button["grayscale"].setChecked(True)
+#         if not self.is_color:
+#             self.button["grayscale"].hide()
+#         layout_region.addRow(self.button["grayscale"])
     
-    # Functions
-    def main_work(self):
-        # Get args
-        ksize = self.spin_box["arg"].value()
-        if not ksize % 2:
-            ksize -= 1
-        sigma = self.spin_box["arg2"].value()
-        bordertype = self.combo_box["border"].currentIndex()
-        # reflex101 is index 3 but cv2.BORDER_REFLECT101 is 4
-        if bordertype == 3: 
-            bordertype = 4
-        norm_type = self.combo_box["norm"].currentIndex()
-        overflow_type = self.combo_box["overflow"].currentIndex()
-        overflow_val = self.spin_box["overflow"].value()
-        threshold_val = self.spin_box["threshold"].value()
-        #
-        to_grayscale = self.is_color and self.button["grayscale"].isChecked()
-        return SpatialOperators.marr_hildreth(
-            self.original_image, ksize, sigma, bordertype,
-            norm_type, to_grayscale, overflow_type, overflow_val,
-            threshold_val)
+#     # Functions
+#     def main_work(self):
+#         # Get args
+#         ksize = self.spin_box["arg"].value()
+#         if not ksize % 2:
+#             ksize -= 1
+#         sigma = self.spin_box["arg2"].value()
+#         bordertype = self.combo_box["border"].currentIndex()
+#         # reflex101 is index 3 but cv2.BORDER_REFLECT101 is 4
+#         if bordertype == 3: 
+#             bordertype = 4
+#         norm_type = self.combo_box["norm"].currentIndex()
+#         overflow_type = self.combo_box["overflow"].currentIndex()
+#         overflow_val = self.spin_box["overflow"].value()
+#         threshold_val = self.spin_box["threshold"].value()
+#         #
+#         to_grayscale = self.is_color and self.button["grayscale"].isChecked()
+#         return SpatialOperators.marr_hildreth(
+#             self.original_image, ksize, sigma, bordertype,
+#             norm_type, to_grayscale, overflow_type, overflow_val,
+#             threshold_val)
     
-    def overflow_changed(self, index: int):
-        if index:
-            self.widget["overflow_label"].show()
-            self.spin_box["overflow"].show()
-        else:
-            self.widget["overflow_label"].hide()
-            self.spin_box["overflow"].hide()
-        self.update_view()
+#     def overflow_changed(self, index: int):
+#         if index:
+#             self.widget["overflow_label"].show()
+#             self.spin_box["overflow"].show()
+#         else:
+#             self.widget["overflow_label"].hide()
+#             self.spin_box["overflow"].hide()
+#         self.update_view()
 
 
 

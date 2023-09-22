@@ -21,6 +21,7 @@ from spatial_filters import (
     bilateral_blur, unsharp_masking, get_2d_gaussian_kernel,
     check_gaussian_kernel_arg
 )
+from colors import rgb_to_gray
 import stats
 
 from img_type import ARR_8U2D, IMG_8U, KER_SIZE
@@ -255,8 +256,7 @@ class SpatialOperators():
         # Take norm
         output = gradient_norm(edges, norm_type) # shape = img.shape
         if to_grayscale:
-            kernel = np.array((0.299,0.587,0.114), dtype=np.float32)
-            output = np.dot(output, kernel)
+            output = rgb_to_gray(output)
         # Deal with overflow
         output = gradient_uint8_overflow(
             output, overflow_type, overflow_val, np.uint8
@@ -273,29 +273,40 @@ class SpatialOperators():
             to_grayscale: bool, scaling_val: float,
             threshold_val: int
         ) -> IMG_8U:
+        if to_grayscale:# Convert to grayscale
+            temp = rgb_to_gray(img)
+        else:
+            temp = img
         kernels = get_gradient_operator(op)
         edges = np.empty(
-            [len(kernels), *img.shape], dtype=np.float32
+            [len(kernels), *temp.shape], dtype=np.float32
         )
         # Convolution
         if op != "roberts":
             for i, kernel in enumerate(kernels):
-                edges[i] = cv2.filter2D(img, cv2.CV_32F, kernel,
+                edges[i] = cv2.filter2D(temp, cv2.CV_32F, kernel,
                                          borderType=bordertype)
         else:
             for i, kernel in enumerate(kernels):
-                edges[i] = cv2.filter2D(img, cv2.CV_32F, kernel, anchor=(0,0),
+                edges[i] = cv2.filter2D(temp, cv2.CV_32F, kernel, anchor=(0,0),
                                          borderType=bordertype)
         # Take norm
         if len(kernels) > 1:
             if not norm_type:
-                gradient = np.max(edges, axis=0)
+                maximum = np.max(edges, axis=0)
                 minimum = np.min(edges, axis=0)
-                np.copyto(gradient, minimum,
-                          where=np.abs(minimum)>np.abs(gradient))
+                gradient = np.where(
+                    np.abs(maximum)>np.abs(minimum), maximum, minimum)
             elif norm_type == 1:
                 gradient = np.sum(edges, axis=0, dtype=np.float32)
             elif norm_type == 2:
+                maximum = np.max(edges, axis=0)
+                minimum = np.min(edges, axis=0)
+                sign = np.sign(np.where(
+                    np.abs(maximum)>np.abs(minimum), maximum, minimum))
+                gradient = np.linalg.norm(edges, axis=0)
+                gradient *= sign
+            elif norm_type == 3:
                 gradient = np.mean(edges, axis=0, dtype=np.float32)
         else:
             gradient = edges[0]
@@ -307,9 +318,6 @@ class SpatialOperators():
             gradient[np.abs(gradient)<=threshold_val] = 0
         # Sharpening, f-f''
         if to_grayscale:# Convert to grayscale
-            kernel = np.array((0.299,0.587,0.114), dtype=np.float32)
-            gradient = np.dot(gradient, kernel)
-            
             output = np.empty_like(img, dtype=np.float32)
             for i in range(3):
                 output[:,:,i] = np.subtract(img[:,:,i], gradient,
@@ -318,53 +326,53 @@ class SpatialOperators():
             output = np.subtract(img, gradient, dtype=np.float32)
         return cv2.convertScaleAbs(output)
     
-    @staticmethod
-    def marr_hildreth(
-            img: IMG_8U, ksize: int, sigma: float, bordertype: int,
-            norm_type: int, to_grayscale: bool,
-            overflow_type: int, overflow_val: float,
-            threshold_val: int
-        ) -> IMG_8U:
-        # marr_hildreth:
-        #   Step 1. Gaussian blur
-        #   Step 2. Gradient.
-        # Get kernels
-        ksize, sigma, _ = check_gaussian_kernel_arg(ksize, sigma, sigma)
-        ksize = (ksize[0]+2, ksize[1]+2) # Fill border
-        gaussian = get_2d_gaussian_kernel(ksize, sigma, sigma)
-        sobels = get_gradient_operator("sobel")
-        # Convolution is commutative. Convolve gaussian kernel and gradient
-        # kernel can reduce computation.
-        kernels = []
-        for i, ker in enumerate(sobels):
-            temp = cv2.filter2D(gaussian, cv2.CV_32F, ker,
-                                borderType=bordertype)[1:-1,1:-1]
-            temp -= np.sum(temp) / temp.size
-            kernels.append(temp)
-        # Gradient
-        edges = np.empty(
-            [len(kernels), *img.shape], dtype=np.float32
-        )
-        img = img.astype(np.float32) # Convert to float32 will be faster.
-        for i, ker in enumerate(kernels):
-            edges[i] = cv2.filter2D(
-                img, cv2.CV_32F, ker, borderType=bordertype
-            )
-        # Take norm
-        output = gradient_norm(edges, norm_type)
-        if to_grayscale: # Convert gradient to grayscale
-            kernel = np.array((0.299,0.587,0.114), dtype=np.float32)
-            output = np.dot(output, kernel)
-        # Deal with overflow
-        output = gradient_uint8_overflow(
-            output, overflow_type, overflow_val, np.uint8
-        )
-        # Thresholding
-        if (threshold_val > 0):
-            output = cv2.threshold(
-                output, threshold_val, 255, cv2.THRESH_TOZERO
-            )[1]
-        return output
+    # @staticmethod
+    # def marr_hildreth(
+    #         img: IMG_8U, ksize: int, sigma: float, bordertype: int,
+    #         norm_type: int, to_grayscale: bool,
+    #         overflow_type: int, overflow_val: float,
+    #         threshold_val: int
+    #     ) -> IMG_8U:
+    #     # marr_hildreth:
+    #     #   Step 1. Gaussian blur
+    #     #   Step 2. Gradient.
+    #     # Get kernels
+    #     ksize, sigma, _ = check_gaussian_kernel_arg(ksize, sigma, sigma)
+    #     ksize = (ksize[0]+2, ksize[1]+2) # Fill border
+    #     gaussian = get_2d_gaussian_kernel(ksize, sigma, sigma)
+    #     sobels = get_gradient_operator("sobel")
+    #     # Convolution is commutative. Convolve gaussian kernel and gradient
+    #     # kernel can reduce computation.
+    #     kernels = []
+    #     for i, ker in enumerate(sobels):
+    #         temp = cv2.filter2D(gaussian, cv2.CV_32F, ker,
+    #                             borderType=bordertype)[1:-1,1:-1]
+    #         temp -= np.sum(temp) / temp.size
+    #         kernels.append(temp)
+    #     # Gradient
+    #     edges = np.empty(
+    #         [len(kernels), *img.shape], dtype=np.float32
+    #     )
+    #     img = img.astype(np.float32) # Convert to float32 will be faster.
+    #     for i, ker in enumerate(kernels):
+    #         edges[i] = cv2.filter2D(
+    #             img, cv2.CV_32F, ker, borderType=bordertype
+    #         )
+    #     # Take norm
+    #     output = gradient_norm(edges, norm_type)
+    #     if to_grayscale: # Convert gradient to grayscale
+    #         kernel = np.array((0.299,0.587,0.114), dtype=np.float32)
+    #         output = np.dot(output, kernel)
+    #     # Deal with overflow
+    #     output = gradient_uint8_overflow(
+    #         output, overflow_type, overflow_val, np.uint8
+    #     )
+    #     # Thresholding
+    #     if (threshold_val > 0):
+    #         output = cv2.threshold(
+    #             output, threshold_val, 255, cv2.THRESH_TOZERO
+    #         )[1]
+    #     return output
     
     @staticmethod
     def canny(
@@ -621,10 +629,9 @@ class Image(Generic[IMG], BasicOperators):
             np.fromfile(path, dtype=np.uint8), 
             cv2.IMREAD_COLOR
         )
+        img = img[:,:,::-1] # BGR2RGB
         if Image.is_grayscale(img):
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        else:
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = rgb_to_gray(img)
         return Image(img)
     
     def save_image(self, option: Optional[dict] = None) -> None:
