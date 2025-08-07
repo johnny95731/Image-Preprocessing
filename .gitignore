@@ -1,4 +1,11 @@
-__pycache__
+
+# Folders
+.vscode
+.venv
+.DS_Store
+__pycache__/
+tests/
+
 cFilter.pyx
 commons_c.pyx
 img_test__.py
@@ -8,6 +15,4 @@ Image_Processing.py
 rfft2_other_filters.py
 rfft2_approx_butterworth.py
 wavelet.py
-manual img
-manual.docx
-.vscode
+run_module.py
