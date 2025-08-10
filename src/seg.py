@@ -28,7 +28,7 @@ __all__ = [
 from typing import Literal
 from math import floor
 
-from cython import boundscheck, wraparound
+
 from numba import njit
 from sklearn.cluster import KMeans
 from cv2 import (
@@ -61,7 +61,6 @@ __SIGNATURE_THRESHOLD_TOVALUE = [
 
 
 @njit(__SIGNATURE_THRESHOLD_TOVALUE, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def threshold_tovalue(
     img: IMG_GRAY,
     threshold: int | float,
@@ -103,7 +102,6 @@ def threshold_tovalue(
 
 
 @njit(__SIGNATURE_THRESHOLD_TOVALUE, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def threshold_tovalue_inv(
     img: IMG_GRAY, threshold: int | float, value: int | float | None = None
 ) -> IMG_GRAY:
@@ -151,7 +149,6 @@ __SIGNATURE_THRESHOLD_BINARY = [
 
 
 @njit(__SIGNATURE_THRESHOLD_BINARY, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def threshold_binary(
     img: IMG_GRAY,
     threshold: int | float,
@@ -193,7 +190,6 @@ def threshold_binary(
 
 
 @njit(__SIGNATURE_THRESHOLD_BINARY, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def threshold_binary_inv(
     img: IMG_GRAY,
     threshold: int | float,
@@ -299,7 +295,6 @@ __SIGNATURE_THRESHOLD_by_MASK = [
 ]
 # fmt: on
 @njit(__SIGNATURE_THRESHOLD_by_MASK, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def threshold_by_mask(img: IMG_GRAY, mask: IMG_GRAY) -> IMG_GRAY:
     """Image thresholding pointwise. Same as np.where(img > mask, 255, 0) but
     faster.
@@ -327,7 +322,6 @@ def threshold_by_mask(img: IMG_GRAY, mask: IMG_GRAY) -> IMG_GRAY:
 
 
 @njit(__SIGNATURE_THRESHOLD_by_MASK, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def threshold_by_mask_inv(img: IMG_GRAY, mask: IMG_GRAY) -> IMG_GRAY:
     """Image thresholding pointwise. Same as np.where(img > mask, 0, 255) but
     faster.
@@ -362,7 +356,6 @@ __SIGNATURE_AUTO_THRESHOLD = [
 ]
 # fmt: on
 @njit(__SIGNATURE_AUTO_THRESHOLD, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def get_threshold_mean(img: Arr8U2D) -> np.float32:
     """Calculate threshold value T of single-channel image where
         T = mean(img)
@@ -381,7 +374,6 @@ def get_threshold_mean(img: Arr8U2D) -> np.float32:
 
 
 @njit(__SIGNATURE_AUTO_THRESHOLD, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def get_threshold_itermean(img: Arr8U2D) -> np.float32:
     """
     Calculate threshold value T of single-channel image such that
@@ -423,7 +415,6 @@ def get_threshold_itermean(img: Arr8U2D) -> np.float32:
 
 
 @njit(__SIGNATURE_AUTO_THRESHOLD, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def get_threshold_otsu(img: Arr8U2D) -> np.float32:
     """
     Calculate threshold value of single-channel image by Otsu's method.
@@ -460,7 +451,6 @@ def get_threshold_otsu(img: Arr8U2D) -> np.float32:
 
 
 @njit(__SIGNATURE_AUTO_THRESHOLD, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def get_threshold_max_entropy(img: Arr8U2D) -> np.float32:
     """
     Calculate threshold value of single-channel image by maximize the entropy.
@@ -513,7 +503,6 @@ def get_threshold_max_entropy(img: Arr8U2D) -> np.float32:
 
 
 @njit(__SIGNATURE_AUTO_THRESHOLD, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def get_threshold_yen(img: Arr8U2D) -> np.float32:
     """
     Calculate threshold value of single-channel image by Yen's method.
@@ -555,7 +544,6 @@ def get_threshold_yen(img: Arr8U2D) -> np.float32:
 
 
 @njit(__SIGNATURE_AUTO_THRESHOLD, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def get_threshold_moments(img: Arr8U2D) -> np.float32:
     """
     Calculate threshold value of single-channel image by Tsai's method.
@@ -677,7 +665,6 @@ __SIGNATURE_KMEANS_SEG_8UC1 = [
 
 
 @njit(__SIGNATURE_KMEANS_SEG_8UC1, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def kmeans_seg_8UC1(
     img: Arr8U2D,
     cl_counts: int = 8,
@@ -799,7 +786,6 @@ __SIGNATURE_KMEANS_SEG_8UC3 = [
 
 
 @njit(__SIGNATURE_KMEANS_SEG_8UC3, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def kmeans_seg_8UC3(
     img: Arr8U3D,
     cl_counts: int = 8,
@@ -918,8 +904,6 @@ def kmeans_seg_8UC3(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def kmeans_seg(
     img: IMG_ARRAY,
     cl_counts: int = 8,
@@ -955,8 +939,6 @@ def kmeans_seg(
     return centers[model.labels_].reshape(img.shape)
 
 
-@boundscheck(False)
-@wraparound(False)
 def superpixel_seg(
     img,
     n_segments: int = 500,
@@ -984,8 +966,6 @@ def superpixel_seg(
         return mark_boundaries(img, label)
 
 
-@boundscheck(False)
-@wraparound(False)
 def superpixel_slic(
     img,
     region_size: int = 100,
@@ -1010,8 +990,6 @@ def superpixel_slic(
         return img_slic
 
 
-@boundscheck(False)
-@wraparound(False)
 def superpixel_lsc(
     img,
     region_size: int = 20,
@@ -1035,8 +1013,6 @@ def superpixel_lsc(
         return img_slic
 
 
-@boundscheck(False)
-@wraparound(False)
 def superpixel_seeds(
     img,
     n_segments: int = 500,
@@ -1063,8 +1039,8 @@ def superpixel_seeds(
 
 
 #
-@boundscheck(False)
-@wraparound(False)
+
+
 def grabcut(
     img,
     mask=None,
@@ -1084,8 +1060,6 @@ def grabcut(
     return img * mask2[:, :, np.newaxis]
 
 
-@boundscheck(False)
-@wraparound(False)
 def watershed(img, markers, c=(255, 0, 0), copy=True):
     markers = cv_watershed(img, markers)
     if copy:

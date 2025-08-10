@@ -43,7 +43,7 @@ from typing import Literal
 from math import ceil, exp
 import textwrap
 
-from cython import boundscheck, wraparound
+
 from numba import (
     njit,
     prange,
@@ -78,8 +78,8 @@ from src.utils.img_type import (
 
 
 # Checking parameters
-@boundscheck(False)
-@wraparound(False)
+
+
 def __valid_convolution_ksize(ksize: int | KER_SIZE = 3) -> KER_SIZE:
     """Check the validity of size of convolution kernel.
     If ksize is even, then ksize += 1.
@@ -147,8 +147,6 @@ def __valid_convolution_ksize(ksize: int | KER_SIZE = 3) -> KER_SIZE:
     cache=True,
     fastmath=True,
 )
-@boundscheck(False)
-@wraparound(False)
 def auto_gaussian_kernel_size(sigma: float) -> int:
     """Calculate ksize for gaussian blur by the following formula:
         min{ i | i is odd and i >= max(3, (20*sigma-7) / 3) }
@@ -179,8 +177,6 @@ def auto_gaussian_kernel_size(sigma: float) -> int:
     cache=True,
     fastmath=True,
 )
-@boundscheck(False)
-@wraparound(False)
 def auto_gaussian_kernel_sigma(ksize: int) -> float:
     """Computed sigma for gaussian blur by the following formula:
         sigma = 0.3*((ksize-1)*0.5-1) + 0.8 = 0.15*ksize - 0.35
@@ -199,8 +195,6 @@ def auto_gaussian_kernel_sigma(ksize: int) -> float:
     return 0.15 * ksize - 0.35
 
 
-@boundscheck(False)
-@wraparound(False)
 def check_gaussian_kernel_arg(
     ksize: int | KER_SIZE, sigma_y: float, sigma_x: float
 ) -> tuple[KER_SIZE, float, float]:
@@ -282,7 +276,6 @@ __SIGNATURE_GET_MEAN_KERNEL = ['float32[:,:](UniTuple(uint32,2))']
 
 
 @njit(__SIGNATURE_GET_MEAN_KERNEL, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def get_mean_kernel(ksize) -> Arr32F2D:
     """Return the mean blur kernel.
 
@@ -305,7 +298,6 @@ def get_mean_kernel(ksize) -> Arr32F2D:
 
 
 @njit(['float32[:](int64,float32)'], nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def get_1d_gaussian(ksize: int, sigma: float) -> Arr32F1D:
     """Return the 1D gaussian kernel. The center of kernel is (ksize//2). The
     kernel will be normalized to sum(kernel) = 1.
@@ -343,7 +335,6 @@ def get_1d_gaussian(ksize: int, sigma: float) -> Arr32F1D:
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def get_2d_gaussian_kernel(ksize: KER_SIZE, sigma_y: float, sigma_x: float) -> Arr32F2D:
     """Create an 2D gaussian kernel by outer product two 1D gaussian kernel.
 
@@ -367,8 +358,8 @@ def get_2d_gaussian_kernel(ksize: KER_SIZE, sigma_y: float, sigma_x: float) -> A
 
 
 # Blurring Operators
-@boundscheck(False)
-@wraparound(False)
+
+
 def mean_blur(img: IMG_ARRAY, ksize: int | KER_SIZE = (3, 3)) -> IMG_ARRAY:
     """Applies the mean filter to an image.
 
@@ -391,8 +382,6 @@ def mean_blur(img: IMG_ARRAY, ksize: int | KER_SIZE = (3, 3)) -> IMG_ARRAY:
     return cv2.filter2D(img, CV_32F, kernel)
 
 
-@boundscheck(False)
-@wraparound(False)
 def gaussian_blur(
     img: IMG_ARRAY,
     ksize: int | KER_SIZE = 3,
@@ -427,8 +416,6 @@ def gaussian_blur(
     return cv2.filter2D(img, CV_32F, kernel)
 
 
-@boundscheck(False)
-@wraparound(False)
 def bilateral_blur(
     img: IMG_ARRAY, ksize: int, sigma_color: float = 50, sigma_space: float = 50
 ) -> IMG_ARRAY:
@@ -460,8 +447,6 @@ def bilateral_blur(
     return cv2.bilateralFilter(img, ksize, sigma_color, sigma_space)
 
 
-@boundscheck(False)
-@wraparound(False)
 def median_blur(img: IMG_ARRAY, ksize: int) -> IMG_ARRAY:
     """Blurs an image using the median filter.
 
@@ -495,8 +480,6 @@ def median_blur(img: IMG_ARRAY, ksize: int) -> IMG_ARRAY:
         return cv2.medianBlur(img, ksize)
 
 
-@boundscheck(False)
-@wraparound(False)
 def maximum_blur(img: IMG_ARRAY, ksize: int | KER_SIZE) -> IMG_ARRAY:
     """Blurs an image using the maximum filter.
 
@@ -523,8 +506,6 @@ def maximum_blur(img: IMG_ARRAY, ksize: int | KER_SIZE) -> IMG_ARRAY:
     return cv2.dilate(img, kernel)
 
 
-@boundscheck(False)
-@wraparound(False)
 def minimum_blur(img: IMG_ARRAY, ksize: int | KER_SIZE) -> IMG_ARRAY:
     """Blurs an image using the minimum filter.
 
@@ -548,7 +529,6 @@ def minimum_blur(img: IMG_ARRAY, ksize: int | KER_SIZE) -> IMG_ARRAY:
 
 
 @njit('float32[:,:](uint8[:,:])', nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def logarithm_8UC1(img: Arr8U2D):
     output = np.empty_like(img, dtype=np.float32)
     table = np.empty(256, dtype=np.float32)
@@ -561,7 +541,6 @@ def logarithm_8UC1(img: Arr8U2D):
 
 
 @njit('float32[:,:,:](uint8[:,:,:])', nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def logarithm_8UC3(img: Arr8U2D):
     output = np.empty_like(img, dtype=np.float32)
     table = np.empty(256, dtype=np.float32)
@@ -574,8 +553,6 @@ def logarithm_8UC3(img: Arr8U2D):
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def geometric_mean_blur(img: IMG_8U, ksize: int | KER_SIZE = (3, 3)) -> IMG_8U:
     """Blurs an image using the geometric mean filter.
 
@@ -607,7 +584,6 @@ def geometric_mean_blur(img: IMG_8U, ksize: int | KER_SIZE = (3, 3)) -> IMG_8U:
 
 
 @njit('float32[:,:](uint8[:,:])', nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def reciprocal_8UC1(img: Arr8U2D):
     output = np.empty_like(img, dtype=np.float32)
     table = np.empty(256, dtype=np.float32)
@@ -620,7 +596,6 @@ def reciprocal_8UC1(img: Arr8U2D):
 
 
 @njit('float32[:,:,:](uint8[:,:,:])', nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def reciprocal_8UC3(img: Arr8U2D):
     output = np.empty_like(img, dtype=np.float32)
     table = np.empty(256, dtype=np.float32)
@@ -633,8 +608,6 @@ def reciprocal_8UC3(img: Arr8U2D):
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def harmonic_mean_blur(img: IMG_8U, ksize: int | KER_SIZE = (3, 3)) -> IMG_8U:
     """Blurs an image using the harmonic mean filter.
 
@@ -665,8 +638,6 @@ def harmonic_mean_blur(img: IMG_8U, ksize: int | KER_SIZE = (3, 3)) -> IMG_8U:
     return cv2.convertScaleAbs(blurred)
 
 
-@boundscheck(False)
-@wraparound(False)
 def contraharmonic_mean_blur(
     img: IMG_8U, ksize: int | KER_SIZE = (3, 3), q: int | float = 1
 ) -> IMG_8U:
@@ -708,8 +679,6 @@ def contraharmonic_mean_blur(
     return cv2.convertScaleAbs(blurred)
 
 
-@boundscheck(False)
-@wraparound(False)
 def midpoint_filter(img: IMG_8U, ksize: int | KER_SIZE = (3, 3)) -> IMG_8U:
     """Blurs an image using the midpoint filter.
         blurred = (max_blur(img)+min_blur(img)) / 2
@@ -744,7 +713,6 @@ __SIGNATURE_ALPHA_TRIMMED_MEAN = [
 @njit(
     __SIGNATURE_ALPHA_TRIMMED_MEAN, nogil=True, cache=True, fastmath=True, parallel=True
 )
-@wraparound(False)
 def __alpha_trimmed_mean(pad_img, originalSize, ksize, alpha):
     output = np.empty(originalSize, dtype=np.float32)
     half_alpha = alpha // 2
@@ -757,8 +725,6 @@ def __alpha_trimmed_mean(pad_img, originalSize, ksize, alpha):
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def alpha_trimmed_mean_blur(
     img: IMG_8U, ksize: int | KER_SIZE = (3, 3), alpha: int = 2
 ) -> IMG_8U:
@@ -806,7 +772,6 @@ __SIGNATURE_ADAPTIVE_NOISE_REDUCTION = [
     fastmath=True,
     parallel=False,
 )
-@wraparound(False)
 def __adaptive_mean(img, local_mean, trans, local_var, var_eta):
     output = np.empty_like(img, dtype=np.float32)
     for y, row_var in enumerate(local_var):
@@ -819,8 +784,6 @@ def __adaptive_mean(img, local_mean, trans, local_var, var_eta):
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def adaptive_mean_blur(
     img: IMG_8U, ksize: int | KER_SIZE = (3, 3), var_eta: int = 1
 ) -> IMG_8U:
@@ -866,7 +829,6 @@ __SIGNATURE_ADAPTIVE_MEDIAN = [
 
 
 @njit(__SIGNATURE_ADAPTIVE_MEDIAN, nogil=True, cache=True, fastmath=True, parallel=True)
-@wraparound(False)
 def __adaptive_median(pad_img, initial, final):
     c_init_y = (final[0] - initial[0]) // 2
     c_init_x = (final[1] - initial[1]) // 2
@@ -913,8 +875,6 @@ def __adaptive_median(pad_img, initial, final):
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def adaptive_median_filter(
     img: IMG_8U,
     kinitial: int | KER_SIZE = (3, 3),
@@ -961,8 +921,8 @@ def adaptive_median_filter(
 
 ## Edge Detection 測邊
 # Kernel getters
-@boundscheck(False)
-@wraparound(False)
+
+
 def get_gradient_operator_names():
     """Get a list of availible gradient operator name.
 
@@ -986,8 +946,6 @@ def get_gradient_operator_names():
     )
 
 
-@boundscheck(False)
-@wraparound(False)
 def get_gradient_operator(grad_name: str) -> list[Arr32F2D]:
     """Get a list of availible gradient operator name.
 
@@ -1107,8 +1065,6 @@ def get_gradient_operator(grad_name: str) -> list[Arr32F2D]:
     return [np.array(ker, dtype=np.float32) for ker in kernel]
 
 
-@boundscheck(False)
-@wraparound(False)
 def get_line_operator_name():
     """Get a list of availible line-detection operator name.
 
@@ -1125,8 +1081,6 @@ def get_line_operator_name():
     )
 
 
-@boundscheck(False)
-@wraparound(False)
 def get_line_operator(op_name: str) -> Arr32F2D:
     """Get a list of availible line-detection operator name.
 
@@ -1180,8 +1134,6 @@ def get_line_operator(op_name: str) -> Arr32F2D:
     return np.array(kernel, dtype=np.float32)
 
 
-@boundscheck(False)
-@wraparound(False)
 def gradient_norm(
     edges: list[IMG_ARRAY], ntype: int = 0, pos_only: bool = False
 ) -> IMG_32F:
@@ -1226,8 +1178,6 @@ def gradient_norm(
         return np.mean(np.abs(edges), axis=0, dtype=np.float32)
 
 
-@boundscheck(False)
-@wraparound(False)
 def gradient_uint8_overflow(
     norm: IMG_32F,
     otype: Literal[0, 1] = 0,
@@ -1294,7 +1244,6 @@ def gradient_uint8_overflow(
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def get_derivatives_of_gaussian(
     ksize: KER_SIZE, sigma_y: float, sigma_x: float
 ) -> tuple[Arr32F2D, Arr32F2D]:
@@ -1345,7 +1294,6 @@ def get_derivatives_of_gaussian(
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def get_difference_gaussian(ksize: KER_SIZE, sigma1: float, sigma2: float) -> Arr32F2D:
     """The difference of two 2D gaussian function.
         D(y,x) = G_sigma1(y,x) - G_sigma2(y,x),
@@ -1385,7 +1333,6 @@ def get_difference_gaussian(ksize: KER_SIZE, sigma1: float, sigma2: float) -> Ar
 @njit(
     ['float32[:,:](UniTuple(uint16,2),float32)'], nogil=True, cache=True, fastmath=True
 )
-@wraparound(False)
 def get_laplacian_gaussian(ksize: KER_SIZE, sigma: float):
     """Return the negative laplacian of an 2D gaussian function (LoG), -ΔG.
 
@@ -1419,8 +1366,6 @@ def get_laplacian_gaussian(ksize: KER_SIZE, sigma: float):
     return kernel - total
 
 
-@boundscheck(False)
-@wraparound(False)
 def laplacian(
     img: IMG_ARRAY,
     threshold: int | float = 0,
@@ -1458,8 +1403,6 @@ def laplacian(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def laplacian_all(
     img: IMG_ARRAY,
     threshold: int | float = 0,
@@ -1505,8 +1448,6 @@ def laplacian_all(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def laplacian2(
     img: IMG_ARRAY,
     threshold: int | float = 0,
@@ -1546,8 +1487,6 @@ def laplacian2(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def laplacian4(
     img: IMG_ARRAY,
     threshold: int | float = 0,
@@ -1588,8 +1527,6 @@ def laplacian4(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def sobel(
     img: IMG_ARRAY,
     threshold: int | float = 0,
@@ -1625,8 +1562,6 @@ def sobel(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def kirsch(
     img: IMG_ARRAY,
     threshold: int | float = 0,
@@ -1663,8 +1598,6 @@ def kirsch(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def gaussian_gradient(
     img: IMG_ARRAY,
     ksize: int | KER_SIZE = 3,
@@ -1710,8 +1643,6 @@ def gaussian_gradient(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def marr_hildreth(
     img: IMG_ARRAY,
     ksize: int | KER_SIZE = 3,
@@ -1751,8 +1682,8 @@ def marr_hildreth(
 
 ## Image sharpening
 # Unsharp Mask
-@boundscheck(False)
-@wraparound(False)
+
+
 def unsharp_masking(
     img: IMG_ARRAY,
     ksize: int | KER_SIZE = (5, 5),

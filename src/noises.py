@@ -1,6 +1,5 @@
 __all__ = [
     'get_noises',
-    'get_arguments',
     'add_uniform_noise',
     'add_gaussian_noise',
     'add_rayleigh_noise',
@@ -17,14 +16,12 @@ __all__ = [
 ]
 import random
 
-from cython import wraparound
 from numba import njit
 
 import numpy as np
 from src.utils.img_type import Arr8U2D, Arr32F2D, IMG_GRAY
 
 
-@wraparound(False)
 def get_noises() -> tuple[str]:
     """Returns all available noises.
 
@@ -54,7 +51,6 @@ __SIGNATURE_UNIFORM = [
 
 
 @njit(__SIGNATURE_UNIFORM, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def add_uniform_noise(img: IMG_GRAY, low: int, high: int) -> Arr32F2D:
     """
     Add discrete uniform noise to a given image.
@@ -101,7 +97,6 @@ SIGNATURE_FLOAT_2ARGS_8UC1 = [
 
 
 @njit(SIGNATURE_FLOAT_2ARGS, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def add_gaussian_noise(img: IMG_GRAY, center: float, sigma: float) -> Arr32F2D:
     """
     Add discrete uniform noise to a given image.
@@ -131,7 +126,6 @@ def add_gaussian_noise(img: IMG_GRAY, center: float, sigma: float) -> Arr32F2D:
 
 
 @njit(SIGNATURE_FLOAT_1ARG, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def add_rayleigh_noise(img: IMG_GRAY, scale: float = 0.1) -> Arr32F2D:
     """
     Add Rayleigh noise to a given image.
@@ -166,7 +160,6 @@ def add_rayleigh_noise(img: IMG_GRAY, scale: float = 0.1) -> Arr32F2D:
 
 
 @njit(SIGNATURE_FLOAT_1ARG_8UC1, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def add_rayleigh_noise_8UC1(img: Arr8U2D, scale: float = 0.1) -> Arr8U2D:
     """Add Rayleigh noise to a given image. The noise will be chosen so that
     img add noise is in [0,255].
@@ -207,7 +200,6 @@ def add_rayleigh_noise_8UC1(img: Arr8U2D, scale: float = 0.1) -> Arr8U2D:
 
 
 @njit(SIGNATURE_FLOAT_2ARGS, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def add_gamma_noise(img: IMG_GRAY, shape: float, scale: float) -> Arr32F2D:
     """
     Add Gamma(Erlang) noise to a given image.
@@ -247,7 +239,6 @@ def add_gamma_noise(img: IMG_GRAY, shape: float, scale: float) -> Arr32F2D:
 
 
 @njit(SIGNATURE_FLOAT_2ARGS_8UC1, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def add_gamma_noise_8UC1(img: Arr8U2D, shape: float, scale: float) -> Arr8U2D:
     """
     Add Gamma(Erlang) noise to a given image. The noise will be chosen so that
@@ -293,7 +284,6 @@ def add_gamma_noise_8UC1(img: Arr8U2D, shape: float, scale: float) -> Arr8U2D:
 
 
 @njit(SIGNATURE_FLOAT_1ARG, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def add_exponential_noise(img: IMG_GRAY, scale: float) -> Arr32F2D:
     """
     Add exponential noise to a given image.
@@ -324,7 +314,6 @@ def add_exponential_noise(img: IMG_GRAY, scale: float) -> Arr32F2D:
 
 
 @njit(SIGNATURE_FLOAT_1ARG, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def add_exponential_noise_8UC1(img: Arr8U2D, scale: float) -> Arr8U2D:
     """
     Add exponential noise to a given image. The noise will be chosen so that
@@ -364,7 +353,6 @@ SIGNATURE_SINGLE_COLOER_NOISE = [
 
 
 @njit(SIGNATURE_SINGLE_COLOER_NOISE, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def add_single_color_noise(img: Arr8U2D, prob: float, color: int) -> Arr8U2D:
     """Randomly assign a given color to a given image. Generalized case of
     pepper (or, salt) noise.
@@ -395,7 +383,6 @@ def add_single_color_noise(img: Arr8U2D, prob: float, color: int) -> Arr8U2D:
     return output
 
 
-@wraparound(False)
 def add_salt_noise(img: Arr8U2D, prob: float) -> Arr8U2D:
     """
     Add salt noises to a given image.
@@ -415,7 +402,6 @@ def add_salt_noise(img: Arr8U2D, prob: float) -> Arr8U2D:
     return add_single_color_noise(img, prob, 255)
 
 
-@wraparound(False)
 def add_pepper_noise(img: Arr8U2D, prob: float) -> Arr8U2D:
     """
     Add pepper noise to a given image.
@@ -441,7 +427,6 @@ SIGNATURE_SALT_AND_PEPPER = [
 
 
 @njit(SIGNATURE_SALT_AND_PEPPER, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def add_salt_and_pepper_noise(img: Arr8U2D, p_salt: float, p_pepper: float) -> Arr8U2D:
     """Add salt-and-pepper noise to a given image.
 
@@ -489,7 +474,6 @@ SIGNATURE_BETA = [
 
 
 @njit(SIGNATURE_BETA, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def add_beta_noise(img: Arr8U2D, a: float, b: float, maximum: float = 255) -> Arr8U2D:
     """Add beta noise to a given image.
 

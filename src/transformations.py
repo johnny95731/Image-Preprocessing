@@ -15,16 +15,15 @@ __all__ = [
     'filtered_inv_randon_transform',
 ]
 
-from typing import List
 from math import ceil, floor, sin, cos, tan
 
-from cython import boundscheck, wraparound
+
 from numba import njit
 
 import numpy as np
 from numpy import pi
 
-from pyfftw.interfaces.scipy_fft import rfft, irfft
+from numpy.fft import irfft2, rfft2
 
 from src.utils.img_type import IMG_GRAY, Arr8U2D, Arr32F2D, Arr64F2D
 
@@ -36,8 +35,8 @@ from src.utils.img_type import IMG_GRAY, Arr8U2D, Arr32F2D, Arr64F2D
 
 # DCT type II, unscaled. Algorithm by Byeong Gi Lee, 1984.
 # See: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.118.3056&rep=rep1&type=pdf#page=34
-@boundscheck(False)
-@wraparound(False)
+
+
 def DCT1D(vector):  # 1-D Discrete Cosine Transform
     n = len(vector)
     if n == 1:
@@ -64,8 +63,8 @@ def DCT1D(vector):  # 1-D Discrete Cosine Transform
 
 # DCT type III, unscaled. Algorithm by Byeong Gi Lee, 1984.
 # See: https://www.nayuki.io/res/fast-discrete-cosine-transform-algorithms/lee-new-algo-discrete-cosine-transform.pdf
-@boundscheck(False)
-@wraparound(False)
+
+
 def IDCT1D(vector, root=True):  # 1-D Inverse Discrete Cosine Transform
     if root:
         vector = list(vector)
@@ -93,7 +92,6 @@ def IDCT1D(vector, root=True):  # 1-D Inverse Discrete Cosine Transform
 
 
 @njit('float32[:,:](uint8[:,:])')
-@wraparound(False)
 def DCT2D(img):  # 2D DCT
     size = img.shape
     step1 = np.empty_like(img, dtype=np.float32)
@@ -132,7 +130,6 @@ __SIGNATURE_HAAR = [
 
 
 @njit(__SIGNATURE_HAAR, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def haar(img):
     """Return the Haar wavelet transform of an image.
 
@@ -143,7 +140,7 @@ def haar(img):
 
     Returns
     -------
-    output : List[IMG_32FC1]
+    output : list[IMG_32FC1]
         4 images that applied Haar decomposition.
     """
     size = img.shape
@@ -169,8 +166,6 @@ def haar(img):
     return LL, LH, HL, HH
 
 
-@boundscheck(False)
-@wraparound(False)
 def haar_wavelet(img: IMG_GRAY, level: int = 1):
     """Return the Haar wavelet transform of an image.
 
@@ -183,7 +178,7 @@ def haar_wavelet(img: IMG_GRAY, level: int = 1):
 
     Returns
     -------
-    output : List[IMG_32FC1]
+    output : list[IMG_32FC1]
         Imagess that applied Haar decomposition.
     """
     output = [*haar(img)]
@@ -201,7 +196,6 @@ def haar_wavelet(img: IMG_GRAY, level: int = 1):
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def haar_same(img: Arr32F2D):
     """Return the Haar wavelet transform of an image. The output is same size
     as input.
@@ -213,7 +207,7 @@ def haar_same(img: Arr32F2D):
 
     Returns
     -------
-    output : List[IMG_32FC1]
+    output : list[IMG_32FC1]
         4 images that applied Haar decomposition.
     """
     size = img.shape
@@ -245,9 +239,7 @@ def haar_same(img: Arr32F2D):
     return LL, LH, HL, HH
 
 
-@boundscheck(False)
-@wraparound(False)
-def haar_wavelet_same(img: IMG_GRAY, level: int = 1) -> List[Arr32F2D]:
+def haar_wavelet_same(img: IMG_GRAY, level: int = 1) -> list[Arr32F2D]:
     """Return the Haar wavelet transform of an image.
 
     Parameters
@@ -259,7 +251,7 @@ def haar_wavelet_same(img: IMG_GRAY, level: int = 1) -> List[Arr32F2D]:
 
     Returns
     -------
-    output : List[IMG_32FC1]
+    output : list[IMG_32FC1]
         Imagess that applied Haar decomposition.
     """
     output = [*haar_same(img)]
@@ -271,7 +263,7 @@ def haar_wavelet_same(img: IMG_GRAY, level: int = 1) -> List[Arr32F2D]:
 # 隱像術 Steganography
 def steganography_decomposition(
     img: Arr8U2D, return_bool: bool = False
-) -> List[Arr8U2D]:
+) -> list[Arr8U2D]:
     """Basic steganography by decomposition an 8-bit image into 8 binary images.
     Each image contains the n-th bit of input image.
 
@@ -284,7 +276,7 @@ def steganography_decomposition(
 
     Returns
     -------
-    output : List[IMG_8UC1]
+    output : list[IMG_8UC1]
         8 images, the n-th image contains the n-th bit of input image.
     """
     if return_bool:
@@ -294,13 +286,13 @@ def steganography_decomposition(
 
 
 def steganography_reconstruction(
-    imgs: List[Arr8U2D], return_bool: bool = False
+    imgs: list[Arr8U2D], return_bool: bool = False
 ) -> Arr8U2D:
     """Reconstruction of steganography decomposition.
 
     Parameters
     ----------
-    imgs : List[IMG_8UC1]
+    imgs : list[IMG_8UC1]
         8 binary images.
     return_bool : bool
         The return dtype is bool or not.
@@ -335,7 +327,6 @@ def steganography_reconstruction(
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def randon_transform(img: IMG_GRAY, deg: float = 0.1) -> Arr64F2D:
     """Simulate tomography by Randon transform.
 
@@ -435,7 +426,6 @@ def randon_transform(img: IMG_GRAY, deg: float = 0.1) -> Arr64F2D:
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def inv_randon_transform_standard(img: IMG_GRAY, size):
     """Inverse Randon Transform"""
     projSize = img.shape
@@ -474,7 +464,6 @@ def inv_randon_transform_standard(img: IMG_GRAY, size):
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def window_kernel(ksize, c):
     """Hamming window(c=0.54) or a Hann window(c=0.5) in spatial domain."""
     # size is odd, c=0.5 or c=0.54
@@ -499,7 +488,6 @@ def window_kernel(ksize, c):
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def window_kernel_half(rfftSize, c):
     """Hamming window(c=0.54) or a Hann window(c=0.5) in frequency domain."""
     output = np.empty(rfftSize, np.float32)
@@ -511,15 +499,14 @@ def window_kernel_half(rfftSize, c):
     return output
 
 
-@wraparound(False)
 def filtered_inv_randon_transform(img, size, c: float = 0.54):
     proj_size = img.shape  # Size of Projection Image
 
-    rfft_projection = rfft(img)
+    rfft_projection = rfft2(img)
     kernel = window_kernel_half(rfft_projection.shape[1], c)
 
     for i in range(proj_size[0]):
         rfft_projection[i] = np.multiply(rfft_projection[i], kernel)
 
-    rfft_projection = irfft(rfft_projection)
+    rfft_projection = irfft2(rfft_projection)
     return inv_randon_transform_standard(rfft_projection, size)

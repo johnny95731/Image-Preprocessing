@@ -22,21 +22,18 @@ __all__ = [
 
 from math import atan, exp, ceil
 
-from cython import boundscheck, wraparound
 from numba import njit
 
 import numpy as np
 from numpy.typing import NDArray, DTypeLike
-from scipy.special import betainc
 from cv2 import equalizeHist
 
-import src.utils.helpers as helpers
+from src.utils.helpers import normalize_uint8, transform
 import src.utils.stats as stats
+from src.utils.specials import betainc
 from src.utils.img_type import Arr8U2D, Arr32F2D, Arr8U1D, ARR_1D
 
 
-@boundscheck(False)
-@wraparound(False)
 def __clip_and_transform_dtype(
     img: NDArray, clip_: bool, dtype: DTypeLike, maximum: float = 255
 ) -> NDArray:
@@ -69,8 +66,8 @@ def __clip_and_transform_dtype(
 
 
 # Image enhance 影像增強
-@boundscheck(False)
-@wraparound(False)
+
+
 def linear_transformation(
     img: NDArray,
     ratio: float = 1,
@@ -123,7 +120,6 @@ __SIGNATURE_LINEAR_TRANSFORMATION = [
 
 
 @njit(__SIGNATURE_LINEAR_TRANSFORMATION, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def linear_transformation_8UC1(
     img: Arr8U2D, ratio: float = 1, bias: float = 0
 ) -> Arr8U2D:
@@ -154,11 +150,10 @@ def linear_transformation_8UC1(
             table[i] = 255
         else:
             table[i] = round(val)
-    return helpers.transform(img, table)
+    return transform(img, table)
 
 
 @njit('uint8[:](float32[:],float32[:])', nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def piecewise_linear_function(x_points: ARR_1D, y_heights: ARR_1D) -> Arr8U1D:
     """Create a piecewise linear function from breakpoints x_points and
     corresponding values y_heights.
@@ -199,7 +194,6 @@ def piecewise_linear_function(x_points: ARR_1D, y_heights: ARR_1D) -> Arr8U1D:
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def piecewise_linear_transformation(
     img: Arr8U2D, x_points: ARR_1D, y_heights: ARR_1D
 ) -> Arr8U2D:
@@ -221,7 +215,7 @@ def piecewise_linear_transformation(
         Transformed img.
     """
     table = piecewise_linear_function(x_points, y_heights)
-    return helpers.transform(img, table)
+    return transform(img, table)
 
 
 @njit(
@@ -230,7 +224,6 @@ def piecewise_linear_transformation(
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def intensity_level_slicing_type1(
     img: Arr8U2D, region: tuple[int, int], fg: int, bg: int
 ) -> Arr8U2D:
@@ -261,7 +254,7 @@ def intensity_level_slicing_type1(
             table[i] = fg
         else:
             table[i] = bg
-    return helpers.transform(img, table)
+    return transform(img, table)
 
 
 @njit(
@@ -270,7 +263,6 @@ def intensity_level_slicing_type1(
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def intensity_level_slicing_type2(
     img: Arr8U2D, region: tuple[int, int], level: int
 ) -> Arr8U2D:
@@ -298,7 +290,7 @@ def intensity_level_slicing_type2(
             table[i] = level
         else:
             table[i] = i
-    return helpers.transform(img, table)
+    return transform(img, table)
 
 
 @njit(
@@ -307,7 +299,6 @@ def intensity_level_slicing_type2(
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def intensity_level_slicing_type2_inv(
     img: Arr8U2D, region: tuple[int, int], level: int
 ) -> Arr8U2D:
@@ -335,11 +326,9 @@ def intensity_level_slicing_type2_inv(
             table[i] = i
         else:
             table[i] = level
-    return helpers.transform(img, table)
+    return transform(img, table)
 
 
-@boundscheck(False)
-@wraparound(False)
 def gamma_correction(
     img: NDArray,
     gamma: float | NDArray = 1,
@@ -409,7 +398,6 @@ __SIGNATURE_GAMMA_CORRECTION = [
 
 
 @njit(__SIGNATURE_GAMMA_CORRECTION, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def gamma_correction_8UC1(
     img: Arr8U2D, gamma: float = 1.0, ratio: float = None, bias: float = 0
 ) -> Arr8U2D:
@@ -448,7 +436,7 @@ def gamma_correction_8UC1(
         elif val > 255:
             val = 255
         table[i] = round(val)
-    return helpers.transform(img, table)
+    return transform(img, table)
 
 
 __SIGNATURE_GAMMA_CORRECTION2 = [
@@ -464,7 +452,6 @@ __SIGNATURE_GAMMA_CORRECTION2 = [
 
 
 @njit(__SIGNATURE_GAMMA_CORRECTION2, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def gamma_correction_32FC1(
     img: Arr8U2D, gamma: float = 1.0, ratio: float = None, bias: float = 0
 ) -> Arr32F2D:
@@ -495,7 +482,7 @@ def gamma_correction_32FC1(
         table = np.empty(256, dtype=np.float32)
         for i in range(256):
             table[i] = i * const
-        return helpers.transform(img, table)
+        return transform(img, table)
     table = np.empty(256, dtype=np.float32)
     if ratio is None:
         # constant that makes ratio * 255^gamma = 1.
@@ -509,11 +496,9 @@ def gamma_correction_32FC1(
         elif val > 1:
             val = 1
         table[i] = val
-    return helpers.transform(img, table)
+    return transform(img, table)
 
 
-@boundscheck(False)
-@wraparound(False)
 def log_transformation(
     img: NDArray,
     ratio: bool | None = None,
@@ -578,7 +563,6 @@ __SIGNATURE_LOG_TRANSFORMATION = [
 
 
 @njit(__SIGNATURE_LOG_TRANSFORMATION, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def log_transformation_8UC1(
     img: Arr8U2D, ratio: float = None, bias: float = 0
 ) -> Arr8U2D:
@@ -612,7 +596,7 @@ def log_transformation_8UC1(
         elif val > 255:
             val = 255
         table[i] = round(val)
-    return helpers.transform(img, table)
+    return transform(img, table)
 
 
 # Image Correction with S-shape functions.
@@ -625,7 +609,6 @@ __SIGNATURE_ARCTAN_TRANSFORMATION = [
 
 
 @njit(__SIGNATURE_ARCTAN_TRANSFORMATION, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def arctan_transformation_8UC1(
     img: Arr8U2D, gamma: float = 0.5, center: float = -1
 ) -> Arr8U2D:
@@ -666,7 +649,7 @@ def arctan_transformation_8UC1(
     for i in range(256):
         val = gamma * i - b
         table[i] = round(c * atan(val) + d)
-    return helpers.transform(img, table)
+    return transform(img, table)
 
 
 __SIGNATURE_SIGMOID_CORRECTION = [
@@ -678,7 +661,6 @@ __SIGNATURE_SIGMOID_CORRECTION = [
 
 
 @njit(__SIGNATURE_SIGMOID_CORRECTION, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def logistic_correction_8UC1(
     img: Arr8U2D, sigma: float = 7, center: float = -1
 ) -> Arr8U2D:
@@ -719,15 +701,12 @@ def logistic_correction_8UC1(
     for i in range(256):
         val = (center - i) / sigma2
         table[i] = round(c / (1 + exp(val)) - bias)
-    return helpers.transform(img, table)
+    return transform(img, table)
 
 
-# Note: try to write a betainc function and compare speed with following.
-@boundscheck(False)
-@wraparound(False)
 def beta_correction(img: NDArray, a: float = -1, b: float = -1) -> NDArray:
     """Intensity transformation by imcomplete beta function:
-        T(img) = incbeta(img, a, b), img in [0,1].
+        T(img) = incbeta(img; a, b), img in [0,1].
     output image is 8UC1.
 
     Parameters
@@ -747,15 +726,13 @@ def beta_correction(img: NDArray, a: float = -1, b: float = -1) -> NDArray:
     if a <= 0 or b <= 0:
         return img
     if img.dtype == np.uint8:
-        output = betainc(a, b, np.multiply(img, (1 / 255), dtype=np.float32)) * 255
+        output = betainc(a, b, normalize_uint8(img))
     else:
         output = betainc(a, b, img)
-        output = np.multiply(output, 255, dtype=np.float32)
+    output = np.multiply(output, 255, dtype=np.float32)
     return __clip_and_transform_dtype(output, True, np.uint8)
 
 
-@boundscheck(False)
-@wraparound(False)
 def beta_correction_8UC1(img: Arr8U2D, a: float = 2, b: float = 2) -> Arr8U2D:
     """
     Image intensity transformation by implete beta function:
@@ -781,7 +758,7 @@ def beta_correction_8UC1(img: Arr8U2D, a: float = 2, b: float = 2) -> Arr8U2D:
         return img
     table = np.linspace(0, 1, 256)
     table = np.around(betainc(a, b, table) * 255).astype(np.uint8)
-    return helpers.transform(img, table)
+    return transform(img, table)
 
 
 # Automatic image enhancement
@@ -839,7 +816,6 @@ __SIGNATURE_HISTOGRAM_EQUALIZATION = [
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def histogram_equalization(img: Arr8U2D) -> Arr8U2D:
     """Return the histogram equalization of an 8UC1 image.
 
@@ -864,7 +840,7 @@ def histogram_equalization(img: Arr8U2D) -> Arr8U2D:
         cdf[i] = c * (cdf[i] - bias)
         table[i] = round(np.multiply(cdf[i], 255))
     table[255] = 255
-    return helpers.transform(img, table)
+    return transform(img, table)
 
 
 # -Histogram matching
@@ -878,7 +854,6 @@ __SIGNATURE_HISTOGRAM_MATCHING = [
 
 
 @njit(__SIGNATURE_HISTOGRAM_MATCHING, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def __histogram_matching(he_img, pdf):
     # see Gonzalez, Woods, 數位影像處理(Digital Image Processing), 4e, page 108
     G = np.empty(256, dtype=np.uint8)  # Specified intensity transformation.
@@ -914,11 +889,9 @@ def __histogram_matching(he_img, pdf):
         half = ceil(diff / 2)
         G_inverse[val1 : val1 + half] = distinct_index[i]
         G_inverse[val1 + half : val2] = distinct_index[i + 1]
-    return helpers.transform(he_img, G_inverse)
+    return transform(he_img, G_inverse)
 
 
-@boundscheck(False)
-@wraparound(False)
 def histogram_matching(img: Arr8U2D, pdf: np.ndarray):
     """Return the histogram matching of an 8UC1 image with specified pdf.
 
@@ -940,7 +913,7 @@ def histogram_matching(img: Arr8U2D, pdf: np.ndarray):
 # @njit(
 #     __SIGNATURE_HISTOGRAM_MATCHING,
 #     nogil=True, cache=True, fastmath=True)
-# @wraparound(False)
+#
 # def __histogram_matching2(img, pdf):
 #     # see Gonzalez, Woods, 數位影像處理(Digital Image Processing), 4e, page 108
 #     G = np.empty(256, dtype=np.uint8) # Specified intensity transformation.
@@ -968,8 +941,8 @@ def histogram_matching(img: Arr8U2D, pdf: np.ndarray):
 #         G_inverse[i] = j
 #         last_j = j
 #     return commons.transform(img, G_inverse)
-# @boundscheck(False)
-# @wraparound(False)
+#
+#
 # def histogram_matching2(img, pdf):
 #     return __histogram_matching2(equalizeHist(img), pdf)
 
@@ -977,7 +950,7 @@ def histogram_matching(img: Arr8U2D, pdf: np.ndarray):
 # @njit(
 #     __SIGNATURE_HISTOGRAM_MATCHING,
 #     nogil=True, cache=True, fastmath=True)
-# @wraparound(False)
+#
 # def __histogram_matching3(img, pdf):
 #     # see Gonzalez, Woods, 數位影像處理(Digital Image Processing), 4e, page 108
 #     G = np.empty(256, dtype=np.uint8) # Specified intensity transformation.
@@ -1007,8 +980,8 @@ def histogram_matching(img: Arr8U2D, pdf: np.ndarray):
 #                 break
 #     G_inverse[val:] = j
 #     return commons.transform(img, G_inverse)
-# @boundscheck(False)
-# @wraparound(False)
+#
+#
 # def histogram_matching3(img, pdf):
 #     return __histogram_matching3(equalizeHist(img), pdf)
 

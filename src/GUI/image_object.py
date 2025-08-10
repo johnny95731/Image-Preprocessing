@@ -2,7 +2,7 @@ from typing import TypeVar, Generic, NewType
 
 import numpy as np
 import cv2
-from pyfftw.interfaces.scipy_fft import rfft2, irfft2
+from numpy.fft import rfft2, irfft2
 
 import src.enhance as enhance
 from src.noises import (

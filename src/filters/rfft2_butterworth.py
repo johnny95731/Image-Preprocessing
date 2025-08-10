@@ -8,7 +8,6 @@ __all__ = [
 
 from typing import Tuple, Union
 
-from cython import boundscheck, wraparound
 from numba import njit, prange
 
 import numpy as np
@@ -28,7 +27,6 @@ __SIGNATURE_BUTTERWORTH_LOWPASS = [
 
 
 @njit(__SIGNATURE_BUTTERWORTH_LOWPASS, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def butterworth_lowpass_nonparallel(
     size: KER_SIZE, cutoff: float, order: float
 ) -> Arr32F2D:
@@ -92,7 +90,6 @@ def butterworth_lowpass_nonparallel(
     fastmath=True,
     parallel=True,
 )
-@wraparound(False)
 def butterworth_lowpass_parallel(
     size: KER_SIZE, cutoff: float, order: float
 ) -> Arr32F2D:
@@ -155,7 +152,6 @@ def butterworth_lowpass_parallel(
     fastmath=True,
     parallel=True,
 )
-@wraparound(False)
 def butterworth_lowpass(
     size: KER_SIZE, cutoff: float, order: float = 1, parallel: bool = False
 ) -> Arr32F2D:
@@ -196,7 +192,6 @@ def butterworth_lowpass(
     fastmath=True,
     error_model='numpy',
 )
-@wraparound(False)
 def butterworth_highpass_nonparallel(
     size: KER_SIZE, cutoff: float, order: float
 ) -> Arr32F2D:
@@ -260,7 +255,6 @@ def butterworth_highpass_nonparallel(
     error_model='numpy',
     parallel=True,
 )
-@wraparound(False)
 def butterworth_highpass_parallel(
     size: KER_SIZE, cutoff: float, order: float
 ) -> Arr32F2D:
@@ -315,8 +309,6 @@ def butterworth_highpass_parallel(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def butterworth_highpass(
     size: KER_SIZE, cutoff: float, order: float = 1, parallel=False
 ) -> Arr32F2D:
@@ -362,7 +354,6 @@ __SIGNATURE_BUTTERWORTH_BANDPASS = [
     fastmath=True,
     error_model='numpy',
 )
-@wraparound(False)
 def butterworth_bandpass_nonparallel(
     size: KER_SIZE, band_center: float, band_width: float, order: float = 1
 ) -> Arr32F2D:
@@ -438,7 +429,6 @@ def butterworth_bandpass_nonparallel(
     fastmath=True,
     parallel=True,
 )
-@wraparound(False)
 def butterworth_bandpass_parallel(
     size: KER_SIZE, band_center: float, band_width: float, order: float = 1
 ) -> Arr32F2D:
@@ -510,8 +500,6 @@ def butterworth_bandpass_parallel(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def butterworth_bandpass(
     size: KER_SIZE,
     band_center: float,
@@ -554,7 +542,6 @@ def butterworth_bandpass(
 
 
 @njit(__SIGNATURE_BUTTERWORTH_BANDPASS, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def butterworth_bandreject_nonparallel(
     size: KER_SIZE, band_center: float, band_width: float, order: float
 ):
@@ -633,7 +620,6 @@ def butterworth_bandreject_nonparallel(
     fastmath=True,
     parallel=True,
 )
-@wraparound(False)
 def butterworth_bandreject_parallel(
     size: KER_SIZE, band_center: float, band_width: float, order: float = 1
 ) -> Arr32F2D:
@@ -702,8 +688,6 @@ def butterworth_bandreject_parallel(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def butterworth_bandreject(
     size: KER_SIZE,
     band_center: float,
@@ -753,7 +737,6 @@ def butterworth_bandreject(
     fastmath=True,
     parallel=True,
 )
-@wraparound(False)
 def butterworth_single_notch_reject(
     size: KER_SIZE, cutoff: float, order: float, center: Tuple[float, float]
 ) -> Arr32F2D:
@@ -819,7 +802,6 @@ def butterworth_single_notch_reject(
     fastmath=True,
     parallel=True,
 )
-@wraparound(False)
 def butterworth_pair_notch_reject(
     size: KER_SIZE, cutoff: float, order: float, center: Tuple[float, float]
 ) -> Arr32F2D:
@@ -853,8 +835,6 @@ def butterworth_pair_notch_reject(
     return np.multiply(kernel1, kernel2)
 
 
-@boundscheck(False)
-@wraparound(False)
 def butterworth_notch_reject(
     size: KER_SIZE,
     cutoff: Union[float, Tuple[float]],

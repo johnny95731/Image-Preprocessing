@@ -1,7 +1,6 @@
 from operator import setitem, getitem
 from typing import Tuple, Union, Literal
 
-from cython import boundscheck, wraparound
 from numba import njit
 
 import cv2
@@ -19,7 +18,6 @@ __SIGNATURE_COLOR_SLICING = [
 
 
 @njit(__SIGNATURE_COLOR_SLICING, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def color_slicing_by_dist(
     img: IMG_COLOR,
     dist: IMG_GRAY,
@@ -43,8 +41,6 @@ def color_slicing_by_dist(
 type_center = Union[Tuple[float, float, float], Tuple[int, int, int]]
 
 
-@boundscheck(False)
-@wraparound(False)
 def color_dist_supnorm(img: IMG_COLOR, center: type_center) -> IMG_COLOR:
     # The sup-norm distance between point and center.
     # numpy version:
@@ -55,8 +51,6 @@ def color_dist_supnorm(img: IMG_COLOR, center: type_center) -> IMG_COLOR:
     return dist
 
 
-@boundscheck(False)
-@wraparound(False)
 def color_dist_2norm(img: IMG_COLOR, center: type_center) -> IMG_COLOR:
     # The 2-norm distance between point and center.
     dist = cv2.add(
@@ -70,8 +64,6 @@ def color_dist_2norm(img: IMG_COLOR, center: type_center) -> IMG_COLOR:
     # standard: return cv2.sqrt(dist)
 
 
-@boundscheck(False)
-@wraparound(False)
 def color_dist_1norm(img: IMG_COLOR, center: type_center) -> IMG_COLOR:
     dist = cv2.add(
         cv2.absdiff(img[:, :, 0], center[0]),
@@ -82,8 +74,6 @@ def color_dist_1norm(img: IMG_COLOR, center: type_center) -> IMG_COLOR:
     return dist
 
 
-@boundscheck(False)
-@wraparound(False)
 def color_slicing(
     img: IMG_COLOR,
     center: type_center,
@@ -102,16 +92,14 @@ def color_slicing(
 
 
 # 色彩空間轉換 Color Space Conversions
-@boundscheck(False)
-@wraparound(False)
+
+
 def bgr_to_rgb(img: IMG_ARRAY) -> IMG_ARRAY:
     if img.ndim == 2:
         return img
     return img[:, :, ::-1]
 
 
-@boundscheck(False)
-@wraparound(False)
 def rgba_to_rgb(
     img: IMG_ARRAY, bg: Union[Literal['w'], Literal['k']] = 'w'
 ) -> IMG_ARRAY:
@@ -142,7 +130,6 @@ __SIGNATURE_RGB_TO_GRAY = [
 
 
 @njit(__SIGNATURE_RGB_TO_GRAY, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def rgb_to_gray(
     img: Arr8U3D, weights: Tuple[float, float, float] = (0.299, 0.587, 0.114)
 ) -> Arr8U3D:
@@ -159,22 +146,16 @@ def rgb_to_gray(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def rgb_to_cmy(img: IMG_ARRAY) -> IMG_ARRAY:
     if img.ndim == 2:
         return img
     return np.subtract(255, img, dtype=np.uint8)
 
 
-@boundscheck(False)
-@wraparound(False)
 def cmy_to_rgb(img: IMG_ARRAY) -> IMG_ARRAY:
     return rgb_to_cmy(img)
 
 
-@boundscheck(False)
-@wraparound(False)
 def cmy_to_cmyk(img: IMG_ARRAY) -> IMG_ARRAY:
     if img.ndim == 2:
         return img
@@ -186,8 +167,6 @@ def cmy_to_cmyk(img: IMG_ARRAY) -> IMG_ARRAY:
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def cmyk_to_cmy(img: IMG_ARRAY) -> IMG_ARRAY:
     if img.ndim == 2:
         return img
@@ -199,8 +178,6 @@ def cmyk_to_cmy(img: IMG_ARRAY) -> IMG_ARRAY:
     return np.clip(output, 0, 255).astype(np.uint8)
 
 
-@boundscheck(False)
-@wraparound(False)
 def rgb_to_yiq(img: IMG_ARRAY) -> IMG_ARRAY:
     if img.ndim == 2:
         return
@@ -214,8 +191,6 @@ def rgb_to_yiq(img: IMG_ARRAY) -> IMG_ARRAY:
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def yiq_to_rgb(img: IMG_ARRAY) -> IMG_ARRAY:
     if img.ndim == 2:
         return
@@ -229,8 +204,6 @@ def yiq_to_rgb(img: IMG_ARRAY) -> IMG_ARRAY:
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def rgb_to_yuv(img: IMG_ARRAY) -> IMG_ARRAY:
     if img.ndim == 2:
         return
@@ -245,8 +218,6 @@ def rgb_to_yuv(img: IMG_ARRAY) -> IMG_ARRAY:
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def yuv_to_rgb(img: IMG_ARRAY) -> IMG_ARRAY:
     if img.ndim == 2:
         return
@@ -263,8 +234,6 @@ def yuv_to_rgb(img: IMG_ARRAY) -> IMG_ARRAY:
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def xyz_to_rgb(img: IMG_ARRAY) -> IMG_ARRAY:  # CIE 1931 XYZ to RGB
     if img.ndim == 2:
         return
@@ -282,8 +251,6 @@ def xyz_to_rgb(img: IMG_ARRAY) -> IMG_ARRAY:  # CIE 1931 XYZ to RGB
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def rgb_to_hsv(img: IMG_ARRAY) -> IMG_ARRAY:
     if img.ndim == 2:
         return
@@ -317,8 +284,6 @@ def rgb_to_hsv(img: IMG_ARRAY) -> IMG_ARRAY:
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def hsv_to_rgb(img: IMG_ARRAY) -> IMG_ARRAY:
     if img.ndim == 2:
         return
@@ -378,8 +343,6 @@ def hsv_to_rgb(img: IMG_ARRAY) -> IMG_ARRAY:
     return output.astype(np.uint8)
 
 
-@boundscheck(False)
-@wraparound(False)
 def rgb_to_hsl(img: IMG_ARRAY) -> IMG_ARRAY:
     if img.ndim == 2:
         return
@@ -422,8 +385,6 @@ def rgb_to_hsl(img: IMG_ARRAY) -> IMG_ARRAY:
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def hsl_to_rgb(img: IMG_ARRAY) -> IMG_ARRAY:
     if img.ndim == 2:
         return
@@ -456,8 +417,6 @@ def hsl_to_rgb(img: IMG_ARRAY) -> IMG_ARRAY:
     return output.astype(np.uint8)
 
 
-@boundscheck(False)
-@wraparound(False)
 def complement(img: IMG_8U, maximum=1) -> IMG_ARRAY:  # 補色, 負片
     if img.dtype.kind == 'i':
         return cv2.bitwise_not(img)

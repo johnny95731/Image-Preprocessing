@@ -1,6 +1,6 @@
 from typing import Union, Optional, Literal
 
-from cython import boundscheck, wraparound
+
 from numba import njit
 
 import numpy as np
@@ -34,7 +34,6 @@ from src.utils.img_type import (
 # apply rfft_shift(rfft_img).
 
 
-@wraparound(False)
 def rfft_shift(rfft_img: IMG_FREQ) -> IMG_FREQ:
     """Shift y-direction such that frequence 0 term is in the middle:
         [-N/2,     ..., -1, 0, 1, ..., N/2-1, ] if N is even;
@@ -65,7 +64,6 @@ def rfft_shift(rfft_img: IMG_FREQ) -> IMG_FREQ:
     return output
 
 
-@wraparound(False)
 def rfft_ishift(rfft_img: IMG_FREQ) -> IMG_FREQ:
     """Inverse shift y-direction such that frequence 0 term is index-0:
         [0, 1, ...,   N/2-1,     -N/2, ..., -1] if N is even;
@@ -95,7 +93,6 @@ __SIGNATURE_FREQUENCIES_MATRIX = [
 
 
 @njit(__SIGNATURE_FREQUENCIES_MATRIX, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def frequencies_matrix(size: KER_SIZE) -> np.ndarray[np.int64]:
     """To display the relation between indices and frequencies.
         freq[y,x] = (u,v), where u, v are frequcies along y-direction and
@@ -136,7 +133,8 @@ def frequencies_matrix(size: KER_SIZE) -> np.ndarray[np.int64]:
 
 
 # Filtering
-@wraparound(False)
+
+
 def filtering(rfft_img: IMG_FREQ, mask: Union[Arr32F2D, Arr64C2D]) -> IMG_FREQ:
     """Image filtering.
 
@@ -161,7 +159,6 @@ __SIGNATURE_LAPLACIAN = [
 
 
 @njit(__SIGNATURE_LAPLACIAN, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def laplacian_filter(size: KER_SIZE) -> Arr32F2D:
     """Return the Laplacian filter that be compressed to [0,1].
         `filter(u,v) = -c*Laplacian(u,v) = 4*c*(π*D(u,v))**2`, where
@@ -202,7 +199,6 @@ def laplacian_filter(size: KER_SIZE) -> Arr32F2D:
 
 
 @njit(__SIGNATURE_LAPLACIAN, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def laplacian_sharpening_filter(size: KER_SIZE) -> Arr32F2D:
     """Return the Laplacian sharpening filter.
         `filter(u,v) = (1 - c*Laplacian(u,v)) = 1 + 4c*(π*D(u,v))**2`, where
@@ -242,7 +238,6 @@ def laplacian_sharpening_filter(size: KER_SIZE) -> Arr32F2D:
 
 
 @njit(__SIGNATURE_LAPLACIAN, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def laplacian_squared(size: KER_SIZE) -> Arr32F2D:
     """Return the squared Laplacian filter.
         `filter(u,v) = Laplacian(u,v)**2 = 16*(π*D(u,v))**4`, where
@@ -285,7 +280,6 @@ __SIGNATURE_MOTION_BLUR = [
 
 
 @njit(__SIGNATURE_MOTION_BLUR, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def linear_motion_blur(
     size: KER_SIZE, T: float, coeff_y: float, coeff_x: float
 ) -> Arr64C2D:
@@ -346,8 +340,6 @@ def get_availible_filter_names() -> Tuple[str]:
     return ('gaussian', 'butterworth')
 
 
-@boundscheck(False)
-@wraparound(False)
 def lowpass_filter(
     name: Literal['laplacian', 'gaussian', 'butterworth'],
     size: KER_SIZE,
@@ -391,8 +383,6 @@ def lowpass_filter(
     return lowpass
 
 
-@boundscheck(False)
-@wraparound(False)
 def highpass_filter(
     name: Literal['laplacian', 'gaussian', 'butterworth'],
     size: KER_SIZE,
@@ -436,8 +426,6 @@ def highpass_filter(
     return highpass
 
 
-@boundscheck(False)
-@wraparound(False)
 def bandpass_filter(
     name: Literal['gaussian', 'butterworth'],
     size: KER_SIZE,
@@ -473,8 +461,6 @@ def bandpass_filter(
     return bandpass
 
 
-@boundscheck(False)
-@wraparound(False)
 def bandreject_filter(
     name: Literal['gaussian', 'butterworth'],
     size: KER_SIZE,
@@ -510,8 +496,6 @@ def bandreject_filter(
     return bandpass
 
 
-@boundscheck(False)
-@wraparound(False)
 def notch_reject_filter(
     name: Literal['gaussian', 'butterworth'],
     size: KER_SIZE,
@@ -549,8 +533,8 @@ def notch_reject_filter(
 
 
 ## Image Sharpening
-@boundscheck(False)
-@wraparound(False)
+
+
 def high_frequency_emphasis_filter(
     filter_: Union[Arr32F2D, Arr64F2D, Literal['gaussian', 'butterworth']],
     size: Optional[KER_SIZE] = None,
@@ -610,8 +594,6 @@ def high_frequency_emphasis_filter(
     )
 
 
-@boundscheck(False)
-@wraparound(False)
 def unsharp_mask(
     filter_: Union[Arr32F2D, Arr64F2D, Literal['gaussian', 'butterworth']],
     size: Optional[KER_SIZE] = None,
@@ -651,8 +633,6 @@ def unsharp_mask(
     return high_frequency_emphasis_filter(filter_, size, amount, **kwargs)
 
 
-@boundscheck(False)
-@wraparound(False)
 def homomorphic_filter(
     filter_: Union[Arr32F2D, Arr64F2D, Literal['gaussian', 'butterworth']],
     size: Optional[KER_SIZE] = None,
@@ -701,7 +681,8 @@ def homomorphic_filter(
 
 
 ## Image Restortion
-@wraparound(False)
+
+
 def inverse_filter(mask: Union[Arr32F2D, Arr64C2D]) -> Union[Arr32F2D, Arr64C2D]:
     """Inverse filter.
         `inverse(mask) = 1 / (mask)`,
@@ -719,8 +700,6 @@ def inverse_filter(mask: Union[Arr32F2D, Arr64C2D]) -> Union[Arr32F2D, Arr64C2D]
     return np.divide(1, mask, dtpe=mask.dtype)
 
 
-@boundscheck(False)
-@wraparound(False)
 def modified_inverse_filter(
     mask: Union[Arr32F2D, Arr64C2D],
     cutoff: float,
@@ -751,8 +730,6 @@ def modified_inverse_filter(
     return np.divide(1, np.multiply(blpf, mask, dtype=mask.dtype), dtype=mask.dtype)
 
 
-@boundscheck(False)
-@wraparound(False)
 def winner_filter(
     mask: Union[Arr32F2D, Arr64C2D], k: float
 ) -> Union[Arr32F2D, Arr64C2D]:
@@ -775,8 +752,6 @@ def winner_filter(
     return np.divide(mask, np.add(mask**2, k, dtype=mask.dtype), dtype=mask.dtype)
 
 
-@boundscheck(False)
-@wraparound(False)
 def constrained_least_squares_filter(
     mask: Union[Arr32F2D, Arr64C2D], gamma: float
 ) -> Union[Arr32F2D, Arr64C2D]:
@@ -799,7 +774,6 @@ def constrained_least_squares_filter(
     return np.divide(mask, np.power(mask, 2) + np.multiply(gamma, lap_square))
 
 
-@wraparound(False)
 def geometric_mean_filter(
     mask: Union[Arr32F2D, Arr64C2D], alpha: float, k: float
 ) -> Union[Arr32F2D, Arr64C2D]:

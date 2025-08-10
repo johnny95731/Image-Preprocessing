@@ -10,7 +10,7 @@ __all__ = [
 from math import exp
 from typing import Tuple, Union
 
-from cython import boundscheck, wraparound
+
 from numba import njit, prange
 
 import numpy as np
@@ -34,7 +34,6 @@ __SIGNATURE_GAUSSIAN_KERNEL_SHIFT = [
 
 
 @njit(__SIGNATURE_GAUSSIAN_KERNEL_SHIFT, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def get_freq_gaussian_kernel(
     size: KER_SIZE, sigma: float, center: float = 0
 ) -> Arr32F1D:
@@ -91,7 +90,6 @@ __SIGNATURE_GAUSSIAN_KERNEL_HALF = [
 
 
 @njit(__SIGNATURE_GAUSSIAN_KERNEL_HALF, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def get_freq_gaussian_kernel_pos(
     size: KER_SIZE, sigma: float, center: float = 0, c: float = 1
 ) -> Arr32F1D:
@@ -127,8 +125,6 @@ def get_freq_gaussian_kernel_pos(
     return kernel
 
 
-@boundscheck(False)
-@wraparound(False)
 def gaussian_lowpass(
     size: KER_SIZE, sigma_y: float, sigma_x: float, parallel: bool = False
 ) -> Arr32F2D:
@@ -161,8 +157,6 @@ def gaussian_lowpass(
         return np.outer(kernel_y, kernel_x)
 
 
-@boundscheck(False)
-@wraparound(False)
 def gaussian_highpass(
     size: KER_SIZE, sigma_y: float, sigma_x: float, parallel: bool = False
 ) -> Arr32F2D:
@@ -202,7 +196,6 @@ __SIGNATURE_GAUSSIAN_BANDPASS = [
 
 
 @njit(__SIGNATURE_GAUSSIAN_BANDPASS, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def gaussian_bandpass_nonparallel(
     size: KER_SIZE, band_center: float, band_width: float
 ) -> Arr32F2D:
@@ -264,7 +257,6 @@ def gaussian_bandpass_nonparallel(
 @njit(
     __SIGNATURE_GAUSSIAN_BANDPASS, nogil=True, cache=True, fastmath=True, parallel=True
 )
-@wraparound(False)
 def gaussian_bandpass_parallel(
     size: KER_SIZE, band_center: float, band_width: float
 ) -> Arr32F2D:
@@ -321,8 +313,6 @@ def gaussian_bandpass_parallel(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def gaussian_bandpass(
     size: KER_SIZE, band_center: float, band_width: float, parallel: bool = False
 ) -> Arr32F2D:
@@ -357,7 +347,6 @@ def gaussian_bandpass(
 @njit(
     __SIGNATURE_GAUSSIAN_BANDPASS, nogil=True, cache=True, fastmath=True, parallel=True
 )
-@wraparound(False)
 def gaussian_bandreject_parallel(
     size: KER_SIZE, band_center: float, band_width: float
 ) -> Arr32F2D:
@@ -384,8 +373,6 @@ def gaussian_bandreject_parallel(
     return np.subtract(1, gaussian_bandpass_parallel(size, band_center, band_width))
 
 
-@boundscheck(False)
-@wraparound(False)
 def gaussian_bandreject(
     size: KER_SIZE, band_center: float, band_width: float, parallel: bool = False
 ) -> Arr32F2D:
@@ -428,7 +415,6 @@ def gaussian_bandreject(
     fastmath=True,
     parallel=True,
 )
-@wraparound(False)
 def gaussian_single_notch_reject(
     size: KER_SIZE, sigma: float, center: Tuple[float, float]
 ) -> Arr32F2D:
@@ -466,7 +452,6 @@ def gaussian_single_notch_reject(
     fastmath=True,
     parallel=True,
 )
-@wraparound(False)
 def gaussian_pair_notch_reject(
     size: KER_SIZE, sigma: float, center: Tuple[float, float]
 ) -> Arr32F2D:
@@ -496,8 +481,6 @@ def gaussian_pair_notch_reject(
     return np.multiply(kernel1, kernel2)
 
 
-@boundscheck(False)
-@wraparound(False)
 def gaussian_notch_reject(
     size: KER_SIZE,
     cutoff: Union[float, Tuple[float]],

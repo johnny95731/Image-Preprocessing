@@ -24,7 +24,7 @@ from typing import Tuple, overload
 
 import numpy as np
 
-from cython import boundscheck, wraparound
+
 from numba import njit
 
 from src.utils.img_type import (
@@ -50,7 +50,6 @@ from src.utils.img_type import (
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def histogram_quant_8UC1(img: Arr8U2D) -> Arr32U1D:
     """Calculate the histogram of an 8UC1 image.
 
@@ -79,7 +78,6 @@ def histogram_quant_8UC1(img: Arr8U2D) -> Arr32U1D:
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def histogram_quant_8UC3(img: Arr8U3D) -> Arr32U2D:
     """Calculate the histogram of an 8UC3 image.
 
@@ -111,7 +109,6 @@ def histogram_quant_8UC3(img: Arr8U3D) -> Arr32U2D:
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def histogram_percentage_8UC1(img: Arr8U2D) -> Arr32F1D:
     """Calculate the percentage histogram of an 8UC1 image.
 
@@ -144,7 +141,6 @@ def histogram_percentage_8UC1(img: Arr8U2D) -> Arr32F1D:
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def histogram_percentage_8UC3(img: Arr8U3D) -> Arr32F2D:
     """Calculate the percentage histogram of an 8UC3 image.
 
@@ -181,7 +177,6 @@ def histogram_percentage_8UC3(img: Arr8U3D) -> Arr32F2D:
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def cumulative_percentage_8UC1(img: Arr8U2D) -> Arr32F1D:
     """Return the cumulative distribution function (cdf) of an 8UC1 image.
 
@@ -218,8 +213,8 @@ def histogram(img: Array3D, density: bool) -> Arr32U2D | Arr32F2D: pass
 @overload
 def histogram(img: Array1D, density: bool) -> None: pass
 # fmt: on
-@boundscheck(False)
-@wraparound(False)
+
+
 def histogram(img, density: bool = False):
     if img.ndim == 2 and not density:
         return histogram_quant_8UC1(img)
@@ -234,7 +229,6 @@ def histogram(img, density: bool = False):
 
 
 @njit(['float32(uint8[:,:])'], nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def mean_8UC1(img: Arr8U2D) -> np.float32:
     """Calculate the mean value of an 8UC1 image.
 
@@ -256,7 +250,6 @@ def mean_8UC1(img: Arr8U2D) -> np.float32:
 
 
 @njit('float32(uint8[:])', nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def mean_seq(seq: Arr8U1D) -> np.float32:
     """Calculate the mean value of an uint8 sequence.
 
@@ -281,7 +274,6 @@ def mean_seq(seq: Arr8U1D) -> np.float32:
 __SIGNATURE_MOMENTS = ['float32[:](uint8[:,:])']
 # fmt: on
 @njit(__SIGNATURE_MOMENTS, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def mean_and_var(img: Arr8U2D) -> Arr32F1D:
     """Calculate the mean(average) and variation of an 8UC1 image.
 
@@ -308,7 +300,6 @@ def mean_and_var(img: Arr8U2D) -> Arr32F1D:
 
 
 @njit(__SIGNATURE_MOMENTS, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def moments(img: Arr8U2D) -> Arr32F1D:
     """Return the mean(average), variance, skewness, and kurtosis of an 8UC1
     image.
@@ -347,7 +338,6 @@ def moments(img: Arr8U2D) -> Arr32F1D:
 
 # Sorting
 @njit('int64(uint8[:],int64,int64)', nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def partition(arr: np.ndarray, low: int, high: int) -> int:
     """Rearrange arr[low:high+1] such that arr[i] <= arr[index] for i < index
     and arr[i] > arr[index] for i > index.
@@ -378,7 +368,6 @@ def partition(arr: np.ndarray, low: int, high: int) -> int:
 
 
 @njit('void(uint8[:],int64,int64)', nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def __quick_sort(arr: np.ndarray, low: int, high: int) -> None:
     if low < high:
         q = partition(arr, low, high)
@@ -387,8 +376,6 @@ def __quick_sort(arr: np.ndarray, low: int, high: int) -> None:
 
 
 @njit('uint8[:](uint8[:])', nogil=True, cache=True, fastmath=True)
-@boundscheck(False)
-@wraparound(False)
 def quick_sort(arr: np.ndarray) -> Arr8U1D:
     """Sorting array by using quick sort. The process will change original
     array.
@@ -408,7 +395,6 @@ def quick_sort(arr: np.ndarray) -> Arr8U1D:
 
 
 @njit('int64(uint8[:],int64,int64)', nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def randomized_partition(arr: np.ndarray, low: int, high: int) -> int:
     """Rearrange arr[low:high+1] such that arr[i] <= arr[index] for i < index
     and arr[i] > arr[index] for i > index.
@@ -434,7 +420,6 @@ def randomized_partition(arr: np.ndarray, low: int, high: int) -> int:
 
 
 @njit('void(uint8[:],int64,int64)', nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def __randomized_quick_sort(arr: np.ndarray, low: int, high: int) -> None:
     if low < high:
         mid = randomized_partition(arr, low, high)
@@ -443,7 +428,6 @@ def __randomized_quick_sort(arr: np.ndarray, low: int, high: int) -> None:
 
 
 @njit('uint8[:](uint8[:])', nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def randomized_quick_sort(arr: np.ndarray):
     """Sorting array by using randomized quick sort. The process will change
     original array.
@@ -467,7 +451,6 @@ _SIGNATURE_MAX_AND_MIN_UINT8_SEQ = ['UniTuple(uint8,2)(uint8[:])']
 
 
 @njit(_SIGNATURE_MAX_AND_MIN_UINT8_SEQ, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def max_and_min_uint8_seq(seq: np.ndarray):
     """Return the maximum and minimum of a sequences.
 
@@ -498,7 +481,6 @@ __SIGNATURE_SEARCHING = [
 
 
 @njit(__SIGNATURE_SEARCHING, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def median(img: Arr8U2D) -> int:
     """Find median of image by histogram.
 
@@ -526,7 +508,6 @@ def median(img: Arr8U2D) -> int:
 
 
 @njit(__SIGNATURE_SEARCHING, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def maximum(img: Arr8U2D) -> int:
     """Find the maximum of an image. Faster than np.max(img).
 
@@ -549,7 +530,6 @@ def maximum(img: Arr8U2D) -> int:
 
 
 @njit(__SIGNATURE_SEARCHING, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def minimum(img: Arr8U2D) -> int:
     """Find the minimum of an image. Faster than np.min(img).
 
@@ -577,7 +557,6 @@ __SIGNATURE_MAX_MIN = [
 
 
 @njit(__SIGNATURE_MAX_MIN, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def max_min(img: Arr8U2D) -> Tuple[int, int]:
     """Find the maximum and minimum of an image.
 

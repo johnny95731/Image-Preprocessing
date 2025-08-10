@@ -27,7 +27,7 @@ __all__ = [
 
 import numpy as np
 
-from cython import boundscheck, wraparound
+
 from numba import njit, vectorize, prange
 from src.utils.img_type import (
     Arr16S1D,
@@ -55,7 +55,6 @@ def is_iterable(obj: Any) -> bool:
 
 
 @njit('boolean(unicode_type)', nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def is_valid_filename(text: str) -> bool:
     """Check whether a text is valid as a filename."""
     if not text:
@@ -97,7 +96,6 @@ def convolution_gray(padded_img: Arr32F2D, kernel: Arr32F2D) -> Arr32F2D:
 
 
 @njit(nogil=True, cache=True, fastmath=True, parallel=True)
-@wraparound(False)
 def add_weighted(a, amount, b, amount2):
     return np.multiply(a, amount) + np.multiply(b, amount2)
 
@@ -123,7 +121,6 @@ def nb_add(a: Arr64F1D, b: Arr64F1D) -> Arr32F1D: pass
 def nb_add(a: list[float | int], b: list[float | int]) -> Arr32F1D: pass
 # fmt: on
 @vectorize(__SIGNATURE_BASIC_OPERATORS, cache=True, fastmath=True)
-@wraparound(False)
 def nb_add(a, b):
     """Element-wise add two areguments."""
     return np.add(a, b)
@@ -142,7 +139,6 @@ def nb_subtract(a: Arr64F1D, b: Arr64F1D) -> Arr32F1D: pass
 def nb_subtract(a: list[float | int], b: list[float | int]) -> Arr32F1D: pass
 # fmt: on
 @vectorize(__SIGNATURE_BASIC_OPERATORS, cache=True, fastmath=True)
-@wraparound(False)
 def nb_subtract(a, b):
     """Element-wise subtract two areguments."""
     return np.subtract(a, b)
@@ -162,14 +158,12 @@ __SIGNATURE_MULTIPLY = [
 
 # fmt: on
 @vectorize(__SIGNATURE_MULTIPLY, cache=True, fastmath=True)
-@wraparound(False)
 def nb_multiply(a, b):
     """Element-wise multiply two areguments."""
     return np.multiply(a, b)
 
 
 @vectorize(__SIGNATURE_BASIC_OPERATORS, cache=True, fastmath=True)
-@wraparound(False)
 def nb_power(base, exponent):
     """
     Firse argument(base) raised to the power of second argument(exponent),
@@ -179,7 +173,6 @@ def nb_power(base, exponent):
 
 
 @vectorize(__SIGNATURE_BASIC_OPERATORS, cache=True, fastmath=True)
-@wraparound(False)
 def nb_divide(a, b):
     return np.divide(a, b)
 
@@ -192,7 +185,6 @@ __SIGNATURE_BIAS_RECIPROCAL = [
 
 
 @vectorize(__SIGNATURE_BIAS_RECIPROCAL, cache=True, fastmath=True)
-@wraparound(False)
 def bias_reciprocal(x, bias):
     """Add a bias to x and then get the reciprocal."""
     return np.divide(1, np.add(x, bias))
@@ -205,7 +197,6 @@ __SIGNATURE_ELEMENTWISE_MEAN = [
 
 
 @vectorize(__SIGNATURE_ELEMENTWISE_MEAN, cache=True, fastmath=True)
-@wraparound(False)
 def elementwise_mean(a, b):
     """Element-wise calculate mean of two areguments."""
     return np.multiply(0.5, np.add(a, b))
@@ -218,7 +209,6 @@ __SIGNATURE_OUTER = [
 
 
 @njit(__SIGNATURE_OUTER, nogil=True, cache=True, fastmath=True, parallel=True)
-@wraparound(False)
 def nb_outer(a: Arr32F1D, b: Arr32F1D) -> Arr32F2D:
     """
     Calculate the outer product of two 1-D array.
@@ -239,7 +229,6 @@ __SIGNATURE_OUTER_BIAS = [
 
 
 @njit(__SIGNATURE_OUTER_BIAS, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def outer_bias(a, b, bias):
     """
     Calculate bias minus the outer product of two 1-D array, bias - outer(a,b).
@@ -254,7 +243,6 @@ def outer_bias(a, b, bias):
 
 
 @njit(__SIGNATURE_OUTER_BIAS, nogil=True, cache=True, fastmath=True, parallel=True)
-@wraparound(False)
 def outer_bias_parallel(a, b, bias):
     """
     Calculate bias minus the outer product of a and b, bias - outer(a,b),
@@ -277,7 +265,6 @@ __SIGNATURE_LOWPASS_OUTER = [
 
 
 @njit(__SIGNATURE_LOWPASS_OUTER, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def lowpass_outer(fftimg, a, b):
     """
     Multiply a lowpass filter which is outer(a,b) to fftimg.
@@ -289,7 +276,6 @@ def lowpass_outer(fftimg, a, b):
 
 
 @njit(__SIGNATURE_LOWPASS_OUTER, nogil=True, cache=True, fastmath=True, parallel=True)
-@wraparound(False)
 def lowpass_outer_parallel(fftimg, a, b):
     """
     Multiply a lowpass filter which is outer(a,b) to fftimg with numba parallel
@@ -310,7 +296,6 @@ __SIGNATURE_HIGHPASS_OUTER = [
 
 
 @njit(__SIGNATURE_HIGHPASS_OUTER, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def highpass_outer(fftimg, a, b, bias):
     """
     Multiply a highpass filter which the lowpass filter is outer(a,b),
@@ -323,7 +308,6 @@ def highpass_outer(fftimg, a, b, bias):
 
 
 @njit(__SIGNATURE_HIGHPASS_OUTER, nogil=True, cache=True, fastmath=True, parallel=True)
-@wraparound(False)
 def highpass_outer_parallel(fftimg, a, b, bias):
     """
     Multiply a highpass filter which the lowpass filter is outer(a,b),
@@ -345,7 +329,7 @@ def highpass_outer_parallel(fftimg, a, b, bias):
 # @njit(
 #     _SIGNATURE_2_NORM,
 #     nogil=True, cache=True,  fastmath=True, parallel=True)
-# @wraparound(False)
+#
 # def euclidean_norm(y, x):
 #     """
 #     Return the Euclidean norm (or, 2-norm) of in an 2-D space.
@@ -363,7 +347,7 @@ def highpass_outer_parallel(fftimg, a, b, bias):
 # @njit(
 #     _SIGNATURE_P_NORM,
 #     nogil=True, cache=True, fastmath=True, parallel=True)
-# @wraparound(False)
+#
 # def p_metric(y, x, p):
 #     """
 #     Return the p-norm of in an 2-D space.
@@ -380,7 +364,7 @@ def highpass_outer_parallel(fftimg, a, b, bias):
 # @njit(
 #     _SIGNATURE_SUP_METRIC,
 #     nogil=True, cache=True, fastmath=True, parallel=True)
-# @wraparound(False)
+#
 # def sup_metric(y,x):
 #     """
 #     Return the sup-norm of in an 2-D space, that is, return y is y > x and
@@ -398,7 +382,7 @@ def highpass_outer_parallel(fftimg, a, b, bias):
 # @njit(
 #     _SIGNATURE_DIST_MATRIX,
 #     nogil=True, cache=True, fastmath=True)
-# @wraparound(False)
+#
 # def dist_matrix(size):
 #     """
 #     Return an 2-D matrix whose (y,x) entry is the dist between (y,x) and
@@ -421,7 +405,7 @@ def highpass_outer_parallel(fftimg, a, b, bias):
 # @njit(
 #     _SIGNATURE_DIST_SQUARE_MATRIX,
 #     nogil=True, cache=True, fastmath=True)
-# @wraparound(False)
+#
 # def dist_square_matrix(size):
 #     """
 #     Return an 2-D matrix whose (y,x) entry is the square of dist between (y,x)
@@ -454,7 +438,6 @@ def transform(img: Arr8U2D, table: Arr32F1D) -> Arr32F2D: pass
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def transform(img, table):
     """
     Transforms intensity of an image with a table:
@@ -494,7 +477,6 @@ def transform_1D(seq: Arr8U2D, table: Arr32F1D) -> Arr32F1D: pass
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def transform_1D(seq: Arr8U2D, table: Arr8U1D | Arr32F1D) -> Arr8U1D | Arr32F1D:
     """Transforms intensity of a sequence with a table:
     output = table[seq].
@@ -507,8 +489,8 @@ def transform_1D(seq: Arr8U2D, table: Arr8U1D | Arr32F1D) -> Arr8U1D | Arr32F1D:
 
 # Padding Border. See OpenCV BorderTypes:
 # https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga209f2f4869e304c82d07739337eae7c5
-@boundscheck(False)
-@wraparound(False)
+
+
 def pad_reflect101(img: np.ndarray, ksize=(3, 3)) -> np.ndarray:
     """Padding Border with REFLECT101: dcb | abcdef | edc."""
     size = img.shape
@@ -539,7 +521,6 @@ def pad_reflect101(img: np.ndarray, ksize=(3, 3)) -> np.ndarray:
     fastmath=True,
     parallel=True,
 )
-@wraparound(False)
 def normalize_uint8_parallel(img: Arr8U2D) -> Arr32F2D:
     """Compress the range of values of an 8UC1 image to [0,1] with
     parallel=True.
@@ -573,7 +554,6 @@ def normalize_uint8_parallel(img: Arr8U2D) -> Arr32F2D:
     cache=True,
     fastmath=True,
 )
-@wraparound(False)
 def normalize_uint8(img: Arr8U2D) -> Arr32F2D:
     """Compress the range of values of an 8UC1 image to [0,1].
 

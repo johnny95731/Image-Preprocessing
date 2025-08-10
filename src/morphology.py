@@ -3,7 +3,7 @@ from typing import Optional
 import cv2
 import numpy as np
 
-from cython import boundscheck, wraparound
+
 from numba import njit
 
 from src.utils.img_type import IMG_8U, Arr8U2D, ARR_2D
@@ -22,8 +22,6 @@ In Hit-or-Miss Operation:
 DEFAULT_KER = np.ones((3, 3), dtype=np.uint8)
 
 
-@boundscheck(False)
-@wraparound(False)
 def boundary_extraction(
     img: IMG_8U,
     kernel: ARR_2D,
@@ -34,8 +32,6 @@ def boundary_extraction(
     return np.subtract(img, eroded, dtype=np.uint8)
 
 
-@boundscheck(False)
-@wraparound(False)
 def region_filling(
     img: Arr8U2D, marker: Arr8U2D, kernel: ARR_2D = DEFAULT_KER, max_iter: int = 10
 ):
@@ -57,8 +53,6 @@ def region_filling(
     return cv2.bitwise_or(temp, img)
 
 
-@boundscheck(False)
-@wraparound(False)
 def connected_component(
     img: Arr8U2D, marker: Arr8U2D, kernel: ARR_2D = DEFAULT_KER, max_iter: int = 20
 ) -> Arr8U2D:
@@ -95,8 +89,6 @@ def connected_component(
     return filled
 
 
-@boundscheck(False)
-@wraparound(False)
 def connected_component_region(
     img: Arr8U2D, marker: Arr8U2D, kernel: ARR_2D = DEFAULT_KER, max_iter: int = 20
 ) -> Arr8U2D:
@@ -146,7 +138,6 @@ __SIGNATURE_HISTOGRAM_QUANT = [
 
 
 @njit(__SIGNATURE_HISTOGRAM_QUANT, nogil=True, cache=True, fastmath=True)
-@wraparound(False)
 def __nonzero_index(img):
     """
     Return the first index that img[index] != 0.
@@ -160,8 +151,6 @@ def __nonzero_index(img):
     return -1, -1
 
 
-@boundscheck(False)
-@wraparound(False)
 def all_connected_components(
     img: Arr8U2D, kernel: ARR_2D = DEFAULT_KER, max_iter: int = 100
 ):
@@ -183,8 +172,6 @@ def all_connected_components(
     return components
 
 
-@boundscheck(False)
-@wraparound(False)
 def all_connected_components_region(
     img: Arr8U2D, kernel: ARR_2D = DEFAULT_KER, max_iter: int = 100
 ):
@@ -252,8 +239,6 @@ def draw_connect_components(
     return drawed
 
 
-@boundscheck(False)
-@wraparound(False)
 def thinning(img: Arr8U2D, max_iter: int = 1):
     # 細線化
     kernel1 = np.array([[-1, -1, -1], [0, 1, 0], [1, 1, 1]], dtype=np.int16)
@@ -269,8 +254,6 @@ def thinning(img: Arr8U2D, max_iter: int = 1):
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def thickening(img: Arr8U2D, max_iter: int = 1):
     # 厚化
     # Equivalent:
@@ -294,8 +277,6 @@ def thickening(img: Arr8U2D, max_iter: int = 1):
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def skelton(img: Arr8U2D, kernel: Arr8U2D) -> tuple[Arr8U2D, int]:
     # 骨架
     output = np.zeros_like(img)
@@ -309,8 +290,6 @@ def skelton(img: Arr8U2D, kernel: Arr8U2D) -> tuple[Arr8U2D, int]:
     return output, k
 
 
-@boundscheck(False)
-@wraparound(False)
 def pruning(img: Arr8U2D, thinning_iter: int = 5) -> Arr8U2D:
     # 剪除
     # step1 = thinning img by following kernels.
@@ -346,8 +325,6 @@ def pruning(img: Arr8U2D, thinning_iter: int = 5) -> Arr8U2D:
     return cv2.bitwise_or(thined, endpoints)
 
 
-@boundscheck(False)
-@wraparound(False)
 def geodesic_dilation(
     img: Arr8U2D,
     mask: Arr8U2D,
@@ -376,8 +353,6 @@ def geodesic_dilation(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def geodesic_erosion(
     img: Arr8U2D,
     mask: Arr8U2D,
@@ -406,8 +381,6 @@ def geodesic_erosion(
     return output
 
 
-@boundscheck(False)
-@wraparound(False)
 def opening_by_rec(img, ker_erosion=DEFAULT_KER, ker_rec=DEFAULT_KER, order: int = 1):
     """
     Opening by reconstruction.
@@ -416,8 +389,6 @@ def opening_by_rec(img, ker_erosion=DEFAULT_KER, ker_rec=DEFAULT_KER, order: int
     return geodesic_dilation(eroded, img, ker_rec, None)
 
 
-@boundscheck(False)
-@wraparound(False)
 def closing_by_rec(img, ker_erosion=DEFAULT_KER, ker_rec=DEFAULT_KER, order: int = 1):
     """
     Closing by reconstruction.
@@ -426,8 +397,6 @@ def closing_by_rec(img, ker_erosion=DEFAULT_KER, ker_rec=DEFAULT_KER, order: int
     return geodesic_erosion(dilated, img, ker_rec, None)
 
 
-@boundscheck(False)
-@wraparound(False)
 def auto_region_filling(img, kernel=DEFAULT_KER):
     # Smaller kernel => Fill more region.
     marker = np.zeros_like(img, dtype=np.uint8)
@@ -439,8 +408,6 @@ def auto_region_filling(img, kernel=DEFAULT_KER):
     return cv2.bitwise_not(geodesic_dilation(marker, neg, kernel, iterations=None))
 
 
-@boundscheck(False)
-@wraparound(False)
 def border_clean(img, kernel=DEFAULT_KER):
     # Bigger kernel => Clean more component near border.
     marker = np.zeros_like(img, dtype=np.uint8)
